@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Fluent Hands</title>
+
+    <!-- Bootstrap -->
+    <link href="/static/css/bootstrap.min.css" rel="stylesheet">
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+
+    <link rel="stylesheet" href="/static/css/app.css">
+    {% block css %} {% endblock%}
+  </head>
+  <body>
+    <header>
+        {% include "header.html" %}
+    </header>
+    <main>
+        {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+          <ul class="flashes">
+            {% for category, message in messages %}
+              <h4 id="ok" class="{{ category }}">{{ message }}</h3>
+            {% endfor %}
+          </ul>
+        {% endif %}
+        {% endwith %}
+        <div class="container">
+            {% block main %}{% endblock %}
+        </div>
+    </main>
+    <footer>
+        <div class="container">
+            {% include "footer.html" %}
+        </div>
+    </footer>
+
+    <!-- Include all compiled plugins (below), or include individual files as needed -->
+    <script src="{{ url_for('static', filename='js/bootstrap.bundle.min.js') }}"></script>
+    {% block js %} {% endblock%}
+  </body>
+</html>
