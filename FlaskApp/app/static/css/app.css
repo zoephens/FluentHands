@@ -1,0 +1,17 @@
+body {
+    padding-top: 5rem;
+}
+
+h1{
+    padding-top: 10px;
+    padding-bottom: 20px;
+    color: black;
+}
+
+h4{
+    color: rgb(80, 155, 80);
+}
+
+form {
+    width: 100%;
+}
