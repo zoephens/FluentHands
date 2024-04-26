@@ -5,8 +5,12 @@ from .config import Config
 
 from flask_migrate import Migrate
 
+from .camera import generate_frames
+from flask_socketio import SocketIO
+
 app = Flask(__name__)
 app.config.from_object(Config)
+socketio = SocketIO(app)
 
 db = SQLAlchemy(app)
 migrate = Migrate(app, db)

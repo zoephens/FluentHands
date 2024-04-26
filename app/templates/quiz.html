@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quiz 1</title>
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/holistic"></script>
+</head>
+<body>
+    <h3>Quiz 1</h3>
+    <img id="video_feed" src="{{ url_for('video_feed') }}" />
+    
+    <script>
+        const video = document.getElementById('video_feed');
+        const socket = new WebSocket('ws://localhost:5000/keypoints');
+
+        // Function to send keypoints data to the backend
+        const sendKeypointsData = (data) => {
+            console.log(data)
+            socket.send(JSON.stringify(data));
+        };
+
+        // MediaPipe setup
+        const { Holistic } = mediapipe;
+        const holistic = new Holistic({
+            locateFile: (file) => {
+                return `https://cdn.jsdelivr.net/npm/@mediapipe/holistic/${file}`;
+            },
+        });
+        holistic.setOptions({
+            upperBodyOnly: false,  // Include keypoints for face, both hands, and pose
+            smoothLandmarks: true,
+            minDetectionConfidence: 0.5,
+            minTrackingConfidence: 0.5,
+        });
+        holistic.onResults((results) => {
+            if (results.faceLandmarks && results.poseLandmarks && results.leftHandLandmarks && results.rightHandLandmarks) {
+                sendKeypointsData({
+                    face: results.faceLandmarks,
+                    pose: results.poseLandmarks,
+                    leftHand: results.leftHandLandmarks,
+                    rightHand: results.rightHandLandmarks,
+                });
+            }
+        });
+        const camera = new Camera(video, {
+            onFrame: async () => {
+                await holistic.send({ image: video });
+            },
+            width: 1280,
+            height: 720,
+        });
+        camera.start();
+    </script>
+</body>
+</html>

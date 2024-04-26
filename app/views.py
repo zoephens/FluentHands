@@ -1,10 +1,13 @@
 # import os
 from app import app, db, login_manager
-from flask import render_template, request, redirect, url_for, flash, session, abort, send_from_directory
+from flask import Response, render_template, request, redirect, url_for, flash, session, abort, send_from_directory
 from flask_login import login_user, logout_user, current_user, login_required
 from werkzeug.security import check_password_hash, generate_password_hash
 from app.models import Student, Teacher
 from app.forms import LoginForm
+
+from .camera import generate_frames
+from flask_socketio import SocketIO
 
 ###
 # Routing for your application.
@@ -50,6 +53,31 @@ def logout():
     logout_user()
     flash("You have been logged out")
     return redirect(url_for('home'))
+
+# Model Related Routes
+@app.route('/video_feed')
+def video_feed():
+    return Response(generate_frames(), mimetype='multipart/x-mixed-replace; boundary=frame')
+
+@app.route('/keypoints', methods=['POST'])
+def keypoints():
+    # Process the keypoints data received from the frontend
+    keypoints_data = request.json
+    # Process the data as needed
+    print(keypoints_data)
+    return '', 200
+
+@app.route('/quiz')
+def takequiz():
+    """Render website's quiz page."""
+    return render_template('quiz.html')
+
+# ------------------------------------ socket handeling
+
+@socketio.on('connect')
+def handle_connect():
+    print('Client connected')
+
 
 ###
 # The functions below should be applicable to all Flask apps.

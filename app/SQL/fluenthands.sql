@@ -1,4 +1,3 @@
-
 -- Create Teacher Table Schema
 DROP TABLE IF EXISTS `Teacher`;
 CREATE TABLE `Teacher`(
