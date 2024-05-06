@@ -16,7 +16,7 @@ CREATE TABLE `Administrator`(
     PRIMARY KEY (AdminID)
 );
 
--- Create Student Table Schema
+-- Create Participant Table Schema
 DROP TABLE IF EXISTS `Participant`;
 CREATE TABLE `Participant`(
     ParticipantID INT NOT NULL AUTO_INCREMENT,
@@ -51,7 +51,7 @@ CREATE TABLE `Enrol`(
     ParticipantID INT NOT NULL,
     PRIMARY KEY (EnrolID),
     FOREIGN KEY (AccessCode) REFERENCES `Administrator`(AccessCode),
-    FOREIGN KEY (ParticipantID) REFERENCES `Student`(ParticipantID)
+    FOREIGN KEY (ParticipantID) REFERENCES `Participant`(ParticipantID)
 );
 
 -- Create ImageQuestion Table Schema
@@ -93,7 +93,7 @@ CREATE TABLE `Leaderboard`(
     ParticipantID INT,
     AdminID INT,
     PRIMARY KEY (LboardID),
-    FOREIGN KEY (ParticipantID) REFERENCES `Student`(ParticipantID),
+    FOREIGN KEY (ParticipantID) REFERENCES `Participant`(ParticipantID),
     FOREIGN KEY (AdminID) REFERENCES `Administrator`(AdminID)
 );
 
@@ -118,7 +118,7 @@ CREATE TABLE `Administered` (
     QuizID INT NOT NULL,
     Score INT NOT NULL,
     Feedback TEXT,
-    FOREIGN KEY (ParticipantID) REFERENCES `Student` (ParticipantID),
+    FOREIGN KEY (ParticipantID) REFERENCES `Participant` (ParticipantID),
     FOREIGN KEY (QuizID) REFERENCES `Quiz` (QuizID)
 );
 
@@ -127,7 +127,7 @@ DROP TABLE IF EXISTS `View`;
 CREATE TABLE `View` (
     ParticipantID INT NOT NULL,
     LboardID INT NOT NULL,
-    FOREIGN KEY (ParticipantID) REFERENCES `Student` (ParticipantID),
+    FOREIGN KEY (ParticipantID) REFERENCES `Participant` (ParticipantID),
     FOREIGN KEY (LboardID) REFERENCES `Leaderboard` (LboardID)
 );
 
