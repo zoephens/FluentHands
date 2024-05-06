@@ -2,10 +2,10 @@ from . import db
 from werkzeug.security import generate_password_hash
 
 # Student Schema Model
-class Student(db.Model):
-    __tablename__ = 'student'
+class Participant(db.Model):
+    __tablename__ = 'participant'
 
-    student_id = db.Column(db.Integer, primary_key=True)
+    participant_id = db.Column(db.Integer, primary_key=True)
     fname = db.Column(db.String(50))
     lname = db.Column(db.String(50))
     email = db.Column(db.String(80), unique=True)
@@ -28,18 +28,18 @@ class Student(db.Model):
 
     def get_id(self):
         try:
-            return unicode(self.student_id)  # python 2 support
+            return unicode(self.participant_id)  # python 2 support
         except NameError:
-            return str(self.student_id)  # python 3 support
+            return str(self.participant_id)  # python 3 support
 
     def __repr__(self):
-        return '<Student %r>' % (self.fname)
+        return '<Participant %r>' % (self.fname)
     
 # Teacher Schema Model
-class Teacher(db.Model):
-    __tablename__ = 'teacher'
+class Administrator(db.Model):
+    __tablename__ = 'administrator'
 
-    teacher_id = db.Column(db.Integer, primary_key=True)
+    admin_id = db.Column(db.Integer, primary_key=True)
     access_code = db.Column(db.String(10), unique=True)
     fname = db.Column(db.String(50))
     lname = db.Column(db.String(50))
@@ -64,9 +64,9 @@ class Teacher(db.Model):
 
     def get_id(self):
         try:
-            return unicode(self.teacher_id)  # python 2 support
+            return unicode(self.admin_id)  # python 2 support
         except NameError:
-            return str(self.teacher_id)  # python 3 support
+            return str(self.admin_id)  # python 3 support
 
     def __repr__(self):
-        return '<Teacher %r>' % (self.fname)
+        return '<Admin %r>' % (self.fname)
