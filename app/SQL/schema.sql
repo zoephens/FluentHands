@@ -1,3 +1,9 @@
+-- Database Creation 
+DROP DATABASE IF EXISTS fluenthands;
+CREATE DATABASE fluenthands;
+USE fluenthands;
+
+-- ----------------------- USERS -----------------------
 -- Create Administrator Table Schema
 DROP TABLE IF EXISTS `Administrator`;
 CREATE TABLE `Administrator`(
