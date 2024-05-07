@@ -216,3 +216,8 @@ CALL GenerateAccessCode(@access_code);
 INSERT INTO Administrator (AccessCode, Fname, Lname, Email, Pw) VALUES (@access_code, 'Walter', 'Vega', 'bward@gmail.com', 'ZL38PCyTec');
 CALL GenerateAccessCode(@access_code);
 INSERT INTO Administrator (AccessCode, Fname, Lname, Email, Pw) VALUES (@access_code, 'Julie', 'Tran', 'katelynramirez@gmail.com', 'm4dMNWqIkg');
+
+-- Quizzes Queries
+INSERT INTO Quiz (Topic, NumQuestions, Date, CustomQS, AdminID) VALUES ('Alphabet', 5, '2024-04-28', 0, 8);
+INSERT INTO Quiz (Topic, NumQuestions, Date, CustomQS, AdminID) VALUES ('Alphabet', 8, '2023-09-11', 0, 7);
+INSERT INTO Quiz (Topic, NumQuestions, Date, CustomQS, AdminID) VALUES ('Alphabet', 12, '2023-05-24', 0, 10);
