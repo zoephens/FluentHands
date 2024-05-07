@@ -141,3 +141,4 @@ CREATE TABLE `LinkedTo` (
     BankID INT NOT NULL,
     FOREIGN KEY (QuizID) REFERENCES `Quiz` (QuizID),
     FOREIGN KEY (BankID) REFERENCES `ImageBank` (BankID));
+
