@@ -1,77 +1,52 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>FluentHands</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.1/css/all.min.css">
+{% extends 'base.html' %}
 
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/Login.css') }}">
+<head>
+    {% block css %} 
+        <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    {% endblock%}
 </head>
 
 <body>
     <div class="container" id="container">
 
-        <div class="form-container sign-up-container">
-            <form method="POST">
-                {{ signup_form.csrf_token }}
-                <h1>Create Account</h1>
-                <div class="social-container">
-                    <a href="www.google.com" class="social"><img src="{{ url_for('static', filename='google.jpg') }}" alt="Google"></a>
-                    <a href="www.facebook.com" class="social"><img src="{{ url_for('static', filename='facebook.png') }}" alt="Facebook"></a>
+        {% block main %}
+            <!-- Sing in  Form -->
+            <div class="signin-content">
+                <div class="signin-image">
+                    <figure><img src="{{ url_for('static', filename='images/LoginPersons.png') }}" alt="Users Signing"></figure>
+                    <a href="{{ url_for('register') }}" class="signup-image-link">Create an account</a>
                 </div>
-                <span>or use your email for registration</span>
-                <div class="form-floating">
-                    {{ signup_form.fname(class='form-control', placeholder="First Name") }}
-                </div>
-                <div class="form-floating">
-                    {{ signup_form.lname(class='form-control', placeholder="Last Name") }}
-                </div>
-                <div class="form-floating">
-                    {{ signup_form.email(class='form-control', placeholder="Email") }}
-                </div>
-                <div class="form-floating">
-                    {{ signup_form.password(class='form-control', placeholder="Password") }}
-                </div>
-                <div class="form-floating">
-                    {{ signup_form.account_type(class='form-control radio') }}
-                </div>
-                <button type="submit">Register</button>
-            </form>
-        </div>
 
-        <div class="form-container sign-in-container">
-            <form action="www.youtube.com">
-                <h1>Login to Account</h1>
-                <span>Login using your socials</span>
-                <div class="social-container">
-                    <a href="www.google.com" class="social"><img src="{{ url_for('static', filename='google.jpg') }}" alt="Google"></a>
-                    <a href="www.facebook.com" class="social"><img src="{{ url_for('static', filename='facebook.png') }}" alt="Facebook"></a>
-                </div>
-                <span>or use your account</span>
-                <input type="email" placeholder="Email" />
-                <input type="password" placeholder="Password" />
-                <a href="www.instagram.com">Forgot your password?</a>
-                <button>Login</button>
-            </form>
-        </div>
-
-        <div class="overlay-container">
-            <div class="overlay">
-                <div class="overlay-panel overlay-left">
-                    <h1>Welcome Back!</h1>
-                    <p>To keep connected with us please login with your personal info</p>
-                    <button class="ghost" id="signIn">Sign In</button>
-                </div>
-                <div class="overlay-panel overlay-right">
-                    <h1>New Here?</h1>
-                    <p>Sign Up to Test How Fluent Your Hands Are!</p>
-                    <button class="ghost" id="signUp">Sign Up</button>
+                <div class="signin-form">
+                    <h2 class="form-title">Log In</h2>
+                    <form method="POST" class="register-form" id="login-form">
+                        {{ login_form.csrf_token }}
+                        <div class="form-group">
+                            <label for="email"><i class="fa-solid fa-envelope"></i></label>
+                            {{ login_form.email(class='input-field', id="email", placeholder="Your Email", autocomplete="email") }}
+                        </div>
+                        <div class="form-group">
+                            <label for="your_pass"><i class="fa-solid fa-lock"></i></label>
+                            {{ login_form.password(class='input-field', id="your_pass", placeholder="Password", autocomplete="off") }}
+                        </div>
+                        <div class="form-group form-button">
+                            <button id="signin" class="form-submit" type="submit">Log in</button>
+                        </div>
+                    </form>
+                    <div class="social-login">
+                        <span class="social-label">Or login with</span>
+                        <ul class="socials">
+                            <li><a href="#"><i class="display-flex-center zmdi zmdi-facebook"></i></a></li>
+                            <li><a href="#"><i class="display-flex-center zmdi zmdi-twitter"></i></a></li>
+                            <li><a href="#"><i class="display-flex-center zmdi zmdi-google"></i></a></li>
+                        </ul>
+                    </div>
                 </div>
             </div>
-        </div>
-
+        {% endblock %}
     </div>
-    <script src="{{ url_for('static', filename='js/Login.js') }}"></script>
+    {% block js %} 
+        <script src="{{ url_for('static', filename='js/jquery.min.js') }}"></script>
+    {% endblock%}
 </body>
 </html>

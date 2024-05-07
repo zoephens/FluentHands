@@ -8,22 +8,24 @@
     <!-- Bootstrap -->
     <link href="/static/css/bootstrap.min.css" rel="stylesheet">
 
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
 
+    <!-- Custom Style -->
     <link rel="stylesheet" href="/static/css/app.css">
     {% block css %} {% endblock%}
   </head>
   <body>
     <header>
-        {% include "header.html" %}
+        <!-- {% include "header.html" %} -->
     </header>
     <main>
         {% with messages = get_flashed_messages(with_categories=true) %}
         {% if messages %}
           <ul class="flashes">
-            {% for category, message in messages %}
+            <!-- {% for category, message in messages %} -->
               <h4 id="ok" class="{{ category }}">{{ message }}</h3>
-            {% endfor %}
+            <!-- {% endfor %} -->
           </ul>
         {% endif %}
         {% endwith %}

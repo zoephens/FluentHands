@@ -13,8 +13,7 @@ class SignUpForm(FlaskForm):
     lname = StringField('Last Name', validators=[InputRequired(message='Last name is required')])
     email = StringField('Email', validators=[InputRequired()])
     password = PasswordField('Password', validators=[InputRequired(message='Password is required')])
-    account_type = RadioField('Account Type', choices=[('participant', 'Student'), ('admin', 'Administrator')], validators=[InputRequired()])
-
+    account_type = SelectField('Account Type', choices=[('participant', 'Student'), ('admin', 'Administrator')], validators=[InputRequired(message='Please select user type')])
 class TextQuestionForm(FlaskForm):
     question = StringField('Question', validators=[InputRequired()])
     difficulty = IntegerField('Difficulty', validators=[InputRequired()])

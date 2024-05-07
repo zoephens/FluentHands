@@ -7,8 +7,8 @@ from app.models import Participant, Administrator
 from app.forms import LoginForm, SignUpForm
 
 # Realtime Tracking
-from tensorflow.keras.models import load_model
-from .camera import generate_frames
+from tensorflow.keras.models import load_model # type: ignore
+# from .camera import generate_frames
 import numpy as np
 
 current_dir = os.path.dirname(__file__)
@@ -24,11 +24,11 @@ actions = ['A', 'J', 'Z']
 
 @app.route('/')
 @login_required
-def home():
+def dashboard():
     """Render website's dashboard page."""
     return render_template('dashboard.html')
 
-@app.route('/signup', methods=['POST'])
+@app.route('/signup', methods=['POST', 'GET'])
 def register():
     signup_form = SignUpForm()
 
@@ -39,23 +39,22 @@ def register():
         password = signup_form.password.data
         account_type = signup_form.account_type.data
 
-        hashedPW = generate_password_hash(password, method='pbkdf2:sha256')
-
-        if account_type.lower() == 'student':
+        print(account_type)
+        if account_type == 'participant':
             participant = Participant(
                 fname=fname,
                 lname=lname,
                 email=email,
-                password=hashedPW
+                password=password
             )
             db.session.add(participant)
 
-        elif account_type.lower() == 'administrator':
+        elif account_type.lower() == 'admin':
             admin = Administrator(
                 fname=fname,
                 lname=lname,
                 email=email,
-                password=hashedPW
+                password=password
             )
             db.session.add(admin)
 
@@ -66,9 +65,8 @@ def register():
         except Exception as e:
             db.session.rollback()
             flash(f'Registration Failed: {str(e)}', 'error')
-    return render_template("signin.html", form=signup_form)
+    return render_template("signup.html", form=signup_form)
     
-
 @app.route('/login', methods=['POST', 'GET'])
 def login():
     login_form = LoginForm()
@@ -77,38 +75,34 @@ def login():
         email = login_form.email.data
         password = login_form.password.data
 
-        student = db.session.query(Participant).filter_by(email=email).first()
-        if student is not None and student.check_password_hash(student.password, password):
-            # Login successful, redirect to dashboard or other page
-            login_user(student)
-            flash('Login Successful', 'success')
+        # Query the database for the user
+        user = db.session.query(Participant).filter_by(email=email).first()
 
-            return redirect(url_for('home'))
-        else:
-            # If student not found, check teacher table
-            teacher = db.session.query(Administrator).filter_by(email=email).first()
-            if teacher is not None and teacher.check_password_hash(teacher.password, password):
-                # Login successful, redirect to teacher dashboard or other page
-                login_user(teacher)
+        if user is not None:
+            if check_password_hash(user.password, password):
+                # Login successful, redirect to dashboard or other page
+                login_user(user)
                 flash('Login Successful', 'success')
+                return redirect(url_for('dashboard'))
+            else:
+                print("Incorrect password")
+                flash('Invalid email or password', 'error')
+        else:
+            print("User not found")
+            flash('User not found', 'error')
 
-                return redirect(url_for('teacher_dashboard'))
-
-        # If no user or teacher found, show error message
-        flash('Invalid email or password', 'error')
-
-    return render_template("login.html", login_form=login_form, signup_form=signup_form)
+    return render_template("login.html", login_form=login_form)
 
 @app.route('/logout')
 def logout():
     logout_user()
     flash("You have been logged out")
-    return redirect(url_for('home'))
+    return redirect(url_for('dashboard'))
 
 # Model Related Routes
-@app.route('/video_feed')
-def video_feed():
-    return Response(generate_frames(), mimetype='multipart/x-mixed-replace; boundary=frame')
+# @app.route('/video_feed')
+# def video_feed():
+#     return Response(generate_frames(), mimetype='multipart/x-mixed-replace; boundary=frame')
 
 @app.route('/keypoints', methods=['POST'])
 def keypoints():
@@ -133,11 +127,6 @@ def keypoints():
         print("Error processing keypoints:", e)
         return jsonify({'message': 'Error processing keypoints'}), 500
 
-
-
-
-
-
 @app.route('/quiz')
 def takequiz():
     """Render website's quiz page."""
@@ -150,14 +139,14 @@ def takequiz():
 # user_loader callback. This callback is used to reload the user object from
 # the user ID stored in the session
 @login_manager.user_loader
-def load_user(email):
+def load_user(id):
     # Attempt to load a student
-    student = db.session.query(Participant).filter_by(email=email).first()
+    student = db.session.query(Participant).filter_by(participant_id=id).first()
     if student:
         return student
     
     # If no student found, attempt to load a teacher
-    teacher = db.session.query(Administrator).filter_by(email=email).first()
+    teacher = db.session.query(Administrator).filter_by(participant_id=id).first()
     if teacher:
         return teacher
 
@@ -187,6 +176,3 @@ def add_header(response):
 def page_not_found(error):
     """Custom 404 page."""
     return render_template('404.html'), 404
-
-if __name__ == '__main__':
-    app.run(debug=True)
