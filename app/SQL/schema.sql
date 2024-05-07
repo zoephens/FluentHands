@@ -3,18 +3,64 @@ DROP DATABASE IF EXISTS fluenthands;
 CREATE DATABASE fluenthands;
 USE fluenthands;
 
--- ----------------------- USERS -----------------------
 -- Create Administrator Table Schema
 DROP TABLE IF EXISTS `Administrator`;
 CREATE TABLE `Administrator`(
     AdminID INT NOT NULL AUTO_INCREMENT,
-    AccessCode VARCHAR(10) UNIQUE, 
+    AccessCode VARCHAR(7) UNIQUE, 
     Fname VARCHAR(50),
     Lname VARCHAR(50),
     Email VARCHAR(80) UNIQUE, -- Email should be unique.
     Pw VARCHAR(128),
     PRIMARY KEY (AdminID)
 );
+
+-- Create a stored procedure to generate random access codes
+DROP PROCEDURE IF EXISTS GenerateAccessCode;
+DELIMITER //
+
+CREATE PROCEDURE GenerateAccessCode(OUT generated_code VARCHAR(7))
+BEGIN
+    DECLARE code_first_part VARCHAR(3);
+    DECLARE code_second_part VARCHAR(3);
+    DECLARE letters VARCHAR(52);
+    DECLARE i INT;
+
+    SET letters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz'; -- Set of letters
+
+    -- Generate the first part of the code
+    SET code_first_part = '';
+    SET i = 1;
+    WHILE i <= 3 DO
+        SET code_first_part = CONCAT(code_first_part, SUBSTRING(letters, FLOOR(RAND() * 52) + 1, 1));
+        SET i = i + 1;
+    END WHILE;
+
+    -- Generate the second part of the code
+    SET code_second_part = '';
+    SET i = 1;
+    WHILE i <= 3 DO
+        SET code_second_part = CONCAT(code_second_part, SUBSTRING(letters, FLOOR(RAND() * 52) + 1, 1));
+        SET i = i + 1;
+    END WHILE;
+
+    -- Set the generated code
+    SET generated_code = CONCAT(code_first_part, '-', code_second_part);
+END //
+
+DELIMITER ;
+-- Create trigger to automatically generate access code when inserting a new administrator
+DROP TRIGGER IF EXISTS Before_Insert_Administrator;
+DELIMITER //
+
+CREATE TRIGGER Before_Insert_Administrator
+BEFORE INSERT ON Administrator
+FOR EACH ROW
+BEGIN
+    SET NEW.AccessCode = @access_code ;
+END //
+
+DELIMITER ;
 
 -- Create Participant Table Schema
 DROP TABLE IF EXISTS `Participant`;
@@ -28,7 +74,6 @@ CREATE TABLE `Participant`(
     Pw VARCHAR(128),
     PRIMARY KEY (ParticipantID)
 );
-
 
 -- Create Quiz Table Schema
 DROP TABLE IF EXISTS `Quiz`;
@@ -146,4 +191,28 @@ CREATE TABLE `LinkedTo` (
     QuizID INT NOT NULL,
     BankID INT NOT NULL,
     FOREIGN KEY (QuizID) REFERENCES `Quiz` (QuizID),
-    FOREIGN KEY (BankID) REFERENCES `ImageBank` (BankID));
+    FOREIGN KEY (BankID) REFERENCES `ImageBank` (BankID)
+);
+
+-- Insert queries ----------------------------------------------------------------------
+-- Administrator Queries
+CALL GenerateAccessCode(@access_code);
+INSERT INTO Administrator (AccessCode, Fname, Lname, Email, Pw) VALUES (@access_code, 'Michele', 'Matthews', 'petersonalicia@gmail.com', '3MM3G2zSrt');
+CALL GenerateAccessCode(@access_code);
+INSERT INTO Administrator (AccessCode, Fname, Lname, Email, Pw) VALUES (@access_code, 'Mark', 'Daniels', 'devin68@gmail.com', '4IMCqpEcCU');
+CALL GenerateAccessCode(@access_code);
+INSERT INTO Administrator (AccessCode, Fname, Lname, Email, Pw) VALUES (@access_code, 'Erica', 'Hernandez', 'tarabaker@gmail.com', 'M7QxHNFhxw');
+CALL GenerateAccessCode(@access_code);
+INSERT INTO Administrator (AccessCode, Fname, Lname, Email, Pw) VALUES (@access_code, 'Miranda', 'Gilmore', 'anthony63@gmail.com', '7cfo0G9pf0');
+CALL GenerateAccessCode(@access_code);
+INSERT INTO Administrator (AccessCode, Fname, Lname, Email, Pw) VALUES (@access_code, 'Eric', 'Lee', 'debra10@gmail.com', 'aYEFrdUZ4D');
+CALL GenerateAccessCode(@access_code);
+INSERT INTO Administrator (AccessCode, Fname, Lname, Email, Pw) VALUES (@access_code, 'Christopher', 'Brown', 'mckayjonathan@gmail.com', 'qFROuH0P2E');
+CALL GenerateAccessCode(@access_code);
+INSERT INTO Administrator (AccessCode, Fname, Lname, Email, Pw) VALUES (@access_code, 'Ethan', 'Hancock', 'jason22@gmail.com', 'O6hl6NFvMu');
+CALL GenerateAccessCode(@access_code);
+INSERT INTO Administrator (AccessCode, Fname, Lname, Email, Pw) VALUES (@access_code, 'Ronald', 'Bishop', 'nathan53@gmail.com', 'qEoYc27h3E');
+CALL GenerateAccessCode(@access_code);
+INSERT INTO Administrator (AccessCode, Fname, Lname, Email, Pw) VALUES (@access_code, 'Walter', 'Vega', 'bward@gmail.com', 'ZL38PCyTec');
+CALL GenerateAccessCode(@access_code);
+INSERT INTO Administrator (AccessCode, Fname, Lname, Email, Pw) VALUES (@access_code, 'Julie', 'Tran', 'katelynramirez@gmail.com', 'm4dMNWqIkg');
