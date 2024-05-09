@@ -1,0 +1,119 @@
+/* General Layout */
+body {
+    margin: 0;
+    font-family: Arial, sans-serif;
+    background-color: #f4f4f4;
+}
+
+.layout {
+    display: grid;
+    grid-template-rows: auto 1fr;
+    grid-template-columns: 200px 1fr;
+    grid-template-areas:
+        "header header"
+        "sidebar content";
+    height: 100vh;
+}
+
+.header {
+    grid-area: header;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 20px;
+    background: linear-gradient(to right, #8A9DE6, #AADBFF);
+    color: white;
+}
+
+.menu-icon {
+    font-size: 24px;
+    cursor: pointer;
+}
+
+.logo {
+    width: 150px;
+    margin-left: 10px;
+}
+
+.room-code, .welcome-message {
+    font-size: 16px;
+}
+
+.sidebar {
+    grid-area: sidebar;
+    background-color: #363A44;
+    color: white;
+    padding: 20px;
+}
+
+.sidebar ul {
+    list-style: none;
+    padding: 0;
+}
+
+.menu-item {
+    margin-bottom: 10px;
+}
+
+.menu-item a {
+    color: white;
+    text-decoration: none;
+    display: block;
+    padding: 10px;
+    border-radius: 5px;
+}
+
+.menu-item.active a {
+    background: linear-gradient(to right, #8A9DE6, #AADBFF);
+}
+
+.menu-item a:hover {
+    background-color: #4d5260;
+}
+
+.content {
+    grid-area: content;
+    padding: 20px;
+    overflow-y: auto;
+}
+
+.cards {
+    display: flex;
+    gap: 10px;
+    margin-top: 10px;
+}
+
+.card {
+    flex: 1;
+    padding: 20px;
+    color: white;
+    text-align: center;
+    border-radius: 5px;
+}
+
+.room-code {
+    font-size: 16px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.room-icons {
+    display: flex;
+    gap: 8px;
+    margin-left: 10px;
+}
+
+.room-icons i {
+    cursor: pointer;
+    color: #ffffff;
+    background-color: #354892;
+    border-radius: 50%;
+    padding: 6px;
+    font-size: 18px;
+    transition: background-color 0.3s;
+}
+
+.room-icons i:hover {
+    background-color: #25386d; /* Darker background on hover */
+}
