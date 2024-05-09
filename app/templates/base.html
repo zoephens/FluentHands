@@ -12,7 +12,8 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
 
     <!-- Custom Style -->
-    <link rel="stylesheet" href="/static/css/app.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/app.css') }}">
+
     {% block css %} {% endblock%}
   </head>
   <body>
@@ -34,13 +35,12 @@
         </div>
     </main>
     <footer>
-        <div class="container">
-            {% include "footer.html" %}
-        </div>
+        {% include "footer.html" %}
     </footer>
 
     <!-- Include all compiled plugins (below), or include individual files as needed -->
     <script src="{{ url_for('static', filename='js/bootstrap.bundle.min.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/jquery.min.js') }}"></script>
     {% block js %} {% endblock%}
   </body>
 </html>

@@ -7,14 +7,14 @@
     <title>Quiz 1</title>
 </head>
 <body>
-    <h3>Quiz 1</h3>
+    <h3 id="label">Quiz 1</h3>
     <video id="video_feed" autoplay></video>
-    
     <script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@mediapipe/holistic@0.5.1675471629/holistic.min.js"></script>
     <script>
         const video = document.getElementById('video_feed');
-
+        let label = document.getElementById('label')
+        let value = ""
         mediapipe = window;
 
         // Function to send keypoints data to the backend
@@ -34,6 +34,11 @@
             })
             .then(data => {
                 console.log('Data sent:', data);
+                value = data.predicted_label
+
+                if (value !== "") {
+                    label.textContent = value
+                }
             })
             .catch(error => {
                 console.error('Error sending data:', error);

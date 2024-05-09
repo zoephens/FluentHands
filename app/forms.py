@@ -1,5 +1,5 @@
 from flask_wtf import FlaskForm
-from wtforms import StringField, PasswordField, SelectField, IntegerField, RadioField, DateField, FieldList, FormField, BooleanField
+from wtforms import StringField, PasswordField, SelectField, IntegerField, DateField, FieldList, FormField, BooleanField
 from wtforms.validators import InputRequired
 from flask_wtf.file import FileField, FileRequired, FileAllowed
 # from werkzeug.utils import secure_filename
@@ -14,6 +14,10 @@ class SignUpForm(FlaskForm):
     email = StringField('Email', validators=[InputRequired()])
     password = PasswordField('Password', validators=[InputRequired(message='Password is required')])
     account_type = SelectField('Account Type', choices=[('participant', 'Student'), ('admin', 'Administrator')], validators=[InputRequired(message='Please select user type')])
+
+class EnrolForm(FlaskForm):
+    room_code = StringField('Access Code', validators=[InputRequired(message='Enter Access Code')])
+
 class TextQuestionForm(FlaskForm):
     question = StringField('Question', validators=[InputRequired()])
     difficulty = IntegerField('Difficulty', validators=[InputRequired()])

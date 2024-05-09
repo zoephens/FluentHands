@@ -1,22 +1,28 @@
-import os
+import os, json
 from app import app, db, login_manager
 from flask import jsonify, Response, render_template, request, redirect, url_for, flash, session, abort, send_from_directory
 from flask_login import login_user, logout_user, current_user, login_required
 from werkzeug.security import check_password_hash, generate_password_hash
-from app.models import Participant, Administrator
-from app.forms import LoginForm, SignUpForm
+from werkzeug.utils import secure_filename
+
+from app.models import Participant, Administrator, CamQuestion, ImageQuestion, Quiz, Leaderboard, Administered, Enrol
+from app.forms import LoginForm, SignUpForm, LessonPlan, ImageQuestionForm, TextQuestionForm, EnrolForm
 
 # Realtime Tracking
 from tensorflow.keras.models import load_model # type: ignore
-# from .camera import generate_frames
 import numpy as np
+from collections import Counter
 
 current_dir = os.path.dirname(__file__)
-model_path = os.path.join(current_dir, 'action.h5')
+model_path = os.path.join(current_dir, 'action_new.h5')
+label_path = os.path.join(current_dir, 'labels.json')
 
 # Load the model
 model = load_model(model_path)
-actions = ['A', 'J', 'Z']
+
+with open(label_path, 'r') as file:
+    # Actions that we try to detect
+    actions = json.load(file)
 
 ###
 # Routing for your application.
@@ -61,19 +67,54 @@ def register():
         try:
             db.session.commit()
             flash('Registration Successful', 'success')
-            return redirect(url_for('login'))
+
+            if account_type == 'participant':
+                user = db.session.query(Participant).filter_by(email=email).first()
+                login_user(user)
+                return redirect(url_for('enrol'))
+            elif account_type == 'admin':
+                user = db.session.query(Administrator).filter_by(email=email).first()
+                login_user(user)
+                return redirect(url_for('dashboard'))
+            
         except Exception as e:
             db.session.rollback()
             flash(f'Registration Failed: {str(e)}', 'error')
     return render_template("signup.html", form=signup_form)
-    
+
+@app.route('/enrol', methods=['POST', 'GET'])
+@login_required
+def enrol():
+    form = EnrolForm()
+
+    if form.validate_on_submit():
+        code = form.room_code.data
+        # Check if code is in database
+
+        enrol = Enrol(
+            accessCode = code,
+            participantID = current_user.participantID
+        )
+        db.session.add(enrol)
+
+        try:
+            db.session.commit()
+            flash('Enrolment Successful', 'success')
+            return redirect(url_for('dashboard'))
+        except Exception as e:
+            db.session.rollback()
+            # flash(f'Enrolment Failed: {str(e)}', 'error')
+            flash(f'Invalid Code', 'error')
+
+    return render_template("roomcode.html", form=form)
+
 @app.route('/login', methods=['POST', 'GET'])
 def login():
-    login_form = LoginForm()
+    form = LoginForm()
 
-    if login_form.validate_on_submit():
-        email = login_form.email.data
-        password = login_form.password.data
+    if form.validate_on_submit():
+        email = form.email.data
+        password = form.password.data
 
         # Query the database for the user
         user = db.session.query(Participant).filter_by(email=email).first()
@@ -91,7 +132,7 @@ def login():
             print("User not found")
             flash('User not found', 'error')
 
-    return render_template("login.html", login_form=login_form)
+    return render_template("login.html", form=form)
 
 @app.route('/logout')
 def logout():
@@ -99,35 +140,121 @@ def logout():
     flash("You have been logged out")
     return redirect(url_for('dashboard'))
 
-# Model Related Routes
-# @app.route('/video_feed')
-# def video_feed():
-#     return Response(generate_frames(), mimetype='multipart/x-mixed-replace; boundary=frame')
+@app.route('/add_lesson', methods=['POST', 'GET'])
+def add_lesson():
+    """Render lesson plan page."""
+    lesson_form = LessonPlan()
+    image_form = ImageQuestionForm()
+    text_form = TextQuestionForm()
+
+    if lesson_form.validate_on_submit():
+        adminID = current_user.id
+        file = text_form.photo.data
+    
+        new_cam_question = CamQuestion(
+            topic = lesson_form.topic.data,
+            label = text_form.label.data,
+            marks = text_form.marks.data,
+            difficulty = text_form.level.data,
+            adminID = adminID
+        )
+
+        new_image_question = ImageQuestion(
+            topic = lesson_form.topic.data,
+            label = text_form.label.data,
+            marks = text_form.marks.data,
+            difficulty = text_form.level.data,
+            filename = secure_filename(file.filename),
+            adminID = adminID
+        )
+
+        quiz = Quiz(
+            topic = lesson_form.topic.data,
+            noQues =lesson_form.numQuestions.data,
+            due_date = lesson_form.due_date.data,
+            adminID = adminID
+        )
+
+        db.session.add(quiz)
+        db.session.commit()
+
+        # if :
+        db.session.add(new_cam_question)
+        db.session.commit()
+        # else:
+        os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)
+        file.save(os.path.join(app.config['UPLOAD_FOLDER'], secure_filename(file.filename)))
+        
+        db.session.add(new_image_question)
+        db.session.commit()
+
+        flash('Lesson Created Successfully', 'success')
+        return redirect(url_for('/'))
+
+    return render_template('lesson_plan.html', lesson_form=lesson_form, image_form=image_form, text_form=text_form)
+
+# --------------------------------------------------Functionality to implement
+@app.route('/leaderboard', methods=['GET'])
+def leaderboard():
+    pass
+
+@app.route('/get_students', methods=['GET'])
+def get_students():
+    pass
+
+@app.route('/get_student', methods=['GET'])
+def get_student(studentID):
+    pass
+
+@app.route('/get_progress_report', methods=['GET'])
+def get_progress_report():
+    pass
+
+@app.route('/delete_account', methods=['POST'])
+def delete_account():
+    pass
+
+@app.route('/get_quizzes', methods=['GET'])
+def get_quizzes():
+    pass
+
+@app.route('/get_quizzes_contributed', methods=['GET'])
+def get_quizzes_contributed():
+    pass
+
+# Advance students based on scores
+# Get all quizzes for a particular lecturer and count 
+
+# List to store predictions
+all_predictions = []
 
 @app.route('/keypoints', methods=['POST'])
 def keypoints():
+    global all_predictions
     try:
         keypoints_data = request.json
         sequence = keypoints_data
+        most_common_prediction = ''
 
         if len(sequence) == 30:
             prediction = model.predict(np.expand_dims(sequence, axis=0))[0]
             action = actions[np.argmax(prediction)]
-            print(action)
-
-        # sequence = sequence[-30:]
-
-        # if len(sequence) == 30:
-            # res = model.predict(np.expand_dims(sequence, axis=0))[0]
-            # action = actions[np.argmax(res)]
-            # print("Predicted action:", actions)
+            all_predictions.append(action)
+            # print(action)
         
-        return jsonify({'message': 'Keypoint Received', 'data': keypoints_data}), 200
+            # Once we have 10 predictions, find the most frequent one
+            if len(all_predictions) == 20:
+                most_common_prediction = Counter(all_predictions).most_common(1)[0][0]
+                print("-------------------------Most frequent prediction after 10 attempts:", most_common_prediction)
+                all_predictions = []  # Reset predictions for the next set
+                
+        return jsonify({'message': 'Keypoint Received', 'data': keypoints_data, 'predicted_label': most_common_prediction}), 200
     except Exception as e:
         print("Error processing keypoints:", e)
         return jsonify({'message': 'Error processing keypoints'}), 500
 
 @app.route('/quiz')
+@login_required
 def takequiz():
     """Render website's quiz page."""
     return render_template('quiz.html')
@@ -141,12 +268,12 @@ def takequiz():
 @login_manager.user_loader
 def load_user(id):
     # Attempt to load a student
-    student = db.session.query(Participant).filter_by(participant_id=id).first()
+    student = db.session.query(Participant).filter_by(participantID=id).first()
     if student:
         return student
     
     # If no student found, attempt to load a teacher
-    teacher = db.session.query(Administrator).filter_by(participant_id=id).first()
+    teacher = db.session.query(Administrator).filter_by(administratorID=id).first()
     if teacher:
         return teacher
 
