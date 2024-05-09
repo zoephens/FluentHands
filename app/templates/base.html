@@ -17,25 +17,15 @@
     {% block css %} {% endblock%}
   </head>
   <body>
-    <header>
-        <!-- {% include "header.html" %} -->
-    </header>
     <main>
-        {% with messages = get_flashed_messages(with_categories=true) %}
-        {% if messages %}
-          <ul class="flashes">
-            <!-- {% for category, message in messages %} -->
-              <h4 id="ok" class="{{ category }}">{{ message }}</h3>
-            <!-- {% endfor %} -->
-          </ul>
-        {% endif %}
-        {% endwith %}
-        <div class="container">
-            {% block main %}{% endblock %}
-        </div>
+      {% include 'flash_messages.html' %}
+      <div class="container">
+        {% block main %}{% endblock %}
+      </div>
     </main>
+
     <footer>
-        {% include "footer.html" %}
+      {% include "footer.html" %}
     </footer>
 
     <!-- Include all compiled plugins (below), or include individual files as needed -->

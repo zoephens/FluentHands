@@ -761,3 +761,18 @@ label.valid:after {
 .placeholder-selected option[disabled] {
   display: none;
 }
+
+/* CSS FOR COPY BUTTON */
+.notification {
+  position: fixed;
+  top: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  background-color: rgba(1, 0, 12, 0.8);
+  color: #fff;
+  padding: 10px 20px;
+  border-radius: 5px;
+  opacity: 1;
+  transition: opacity 1s;
+  z-index: 999;
+}

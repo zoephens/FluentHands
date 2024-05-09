@@ -6,40 +6,37 @@
     {% endblock%}
 </head>
 
-<body>
-    {% block main %}
-        <div class="signin-content">
-            <div class="signin-image">
-                <figure><img src="{{ url_for('static', filename='images/LoginPersons.png') }}" alt="Users Signing"></figure>
-                <a href="{{ url_for('register') }}" class="signup-image-link">Create an account</a>
-            </div>
+{% block main %}
+<div class="signin-content">
+    <div class="signin-image">
+        <figure><img src="{{ url_for('static', filename='images/LoginPersons.png') }}" alt="Users Signing"></figure>
+        <a href="{{ url_for('register') }}" class="signup-image-link">Create an account</a>
+    </div>
 
-            <div class="signin-form">
-                <h2 class="form-title">Log In</h2>
-                <form method="POST" class="register-form" id="login-form">
-                    {{ form.csrf_token }}
-                    <div class="form-group">
-                        <label for="email"><i class="fa-solid fa-envelope"></i></label>
-                        {{ form.email(class='input-field', id="email", placeholder="Your Email", autocomplete="email") }}
-                    </div>
-                    <div class="form-group">
-                        <label for="your_pass"><i class="fa-solid fa-lock"></i></label>
-                        {{ form.password(class='input-field', id="your_pass", placeholder="Password", autocomplete="off") }}
-                    </div>
-                    <div class="form-group form-button">
-                        <button id="signin" class="form-submit" type="submit">Log in</button>
-                    </div>
-                </form>
-                <div class="social-login">
-                    <span class="social-label">Or login with</span>
-                    <ul class="socials">
-                        <li><a href="#"><i class="display-flex-center fa-brands fa-facebook-f"></i></a></li>
-                        <li><a href="#"><i class="display-flex-center fa-brands fa-twitter"></i></a></li>
-                        <li><a href="#"><i class="display-flex-center fa-brands fa-google"></i></a></li>
-                    </ul>
-                </div>
+    <div class="signin-form">
+        <h2 class="form-title">Log In</h2>
+        <form method="POST" class="register-form" id="login-form">
+            {{ form.csrf_token }}
+            <div class="form-group">
+                <label for="email"><i class="fa-solid fa-envelope"></i></label>
+                {{ form.email(class='input-field', id="email", placeholder="Your Email", autocomplete="email") }}
             </div>
+            <div class="form-group">
+                <label for="your_pass"><i class="fa-solid fa-lock"></i></label>
+                {{ form.password(class='input-field', id="your_pass", placeholder="Password", autocomplete="off") }}
+            </div>
+            <div class="form-group form-button">
+                <button id="signin" class="form-submit" type="submit">Log in</button>
+            </div>
+        </form>
+        <div class="social-login">
+            <span class="social-label">Or login with</span>
+            <ul class="socials">
+                <li><a href="#"><i class="display-flex-center fa-brands fa-facebook-f"></i></a></li>
+                <li><a href="#"><i class="display-flex-center fa-brands fa-twitter"></i></a></li>
+                <li><a href="#"><i class="display-flex-center fa-brands fa-google"></i></a></li>
+            </ul>
         </div>
-    {% endblock %}
-</body>
-</html>
+    </div>
+</div>
+{% endblock %}

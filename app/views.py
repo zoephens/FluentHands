@@ -1,9 +1,12 @@
 import os, json
 from app import app, db, login_manager
-from flask import jsonify, Response, render_template, request, redirect, url_for, flash, session, abort, send_from_directory
+from flask import jsonify, Response, render_template, request, redirect, url_for, flash, session, abort, send_from_directory, send_file
 from flask_login import login_user, logout_user, current_user, login_required
 from werkzeug.security import check_password_hash, generate_password_hash
 from werkzeug.utils import secure_filename
+
+from reportlab.pdfgen import canvas
+from sqlalchemy import func
 
 from app.models import Participant, Administrator, CamQuestion, ImageQuestion, Quiz, Leaderboard, Administered, Enrol
 from app.forms import LoginForm, SignUpForm, LessonPlan, ImageQuestionForm, TextQuestionForm, EnrolForm
@@ -24,15 +27,31 @@ with open(label_path, 'r') as file:
     # Actions that we try to detect
     actions = json.load(file)
 
+# List to store predictions
+all_predictions = []
+
 ###
 # Routing for your application.
 ###
-
 @app.route('/')
 @login_required
 def dashboard():
     """Render website's dashboard page."""
-    return render_template('dashboard.html')
+    first_name = current_user.fname
+
+    if isinstance(current_user, Administrator):
+        # If the current user is an admin
+        admin = Administrator.query.filter_by(administratorID=current_user.administratorID).first()
+        room_code = admin.access_code
+        is_admin = True
+    else:
+        # If the current user is a participant
+        participant = Participant.query.filter_by(participantID=current_user.participantID).first()
+        enrol = Enrol.query.filter_by(participantID=current_user.participantID).first()
+        room_code = enrol.access_code if enrol else None
+        is_admin = False
+
+    return render_template('dashboard.html', fname=first_name, room_code=room_code, is_admin=is_admin)
 
 @app.route('/signup', methods=['POST', 'GET'])
 def register():
@@ -119,6 +138,9 @@ def login():
         # Query the database for the user
         user = db.session.query(Participant).filter_by(email=email).first()
 
+        if user is None:
+            user = db.session.query(Administrator).filter_by(email=email).first()
+
         if user is not None:
             if check_password_hash(user.password, password):
                 # Login successful, redirect to dashboard or other page
@@ -126,10 +148,8 @@ def login():
                 flash('Login Successful', 'success')
                 return redirect(url_for('dashboard'))
             else:
-                print("Incorrect password")
-                flash('Invalid email or password', 'error')
+                flash('Invalid email or password', 'danger')
         else:
-            print("User not found")
             flash('User not found', 'error')
 
     return render_template("login.html", form=form)
@@ -137,8 +157,8 @@ def login():
 @app.route('/logout')
 def logout():
     logout_user()
-    flash("You have been logged out")
-    return redirect(url_for('dashboard'))
+    flash('You have been logged out', 'success')
+    return redirect(url_for("login"))
 
 @app.route('/add_lesson', methods=['POST', 'GET'])
 def add_lesson():
@@ -193,40 +213,57 @@ def add_lesson():
 
     return render_template('lesson_plan.html', lesson_form=lesson_form, image_form=image_form, text_form=text_form)
 
-# --------------------------------------------------Functionality to implement
-@app.route('/leaderboard', methods=['GET'])
-def leaderboard():
-    pass
-
-@app.route('/get_students', methods=['GET'])
-def get_students():
-    pass
-
-@app.route('/get_student', methods=['GET'])
-def get_student(studentID):
-    pass
-
-@app.route('/get_progress_report', methods=['GET'])
-def get_progress_report():
-    pass
-
 @app.route('/delete_account', methods=['POST'])
 def delete_account():
-    pass
+    if current_user.is_authenticated:
+        if isinstance(current_user, Administrator):
+            # Delete admin account
+            user_id = current_user.administratorID
+            user = Administrator.query.get(user_id)
+        else:
+            # Delete participant account
+            user_id = current_user.participantID
+            user = Participant.query.get(user_id)
 
-@app.route('/get_quizzes', methods=['GET'])
-def get_quizzes():
-    pass
+        if user:
+            # Delete enrol records associated with the user
+            Enrol.query.filter_by(participantID=user_id).delete()
+            db.session.commit()
 
-@app.route('/get_quizzes_contributed', methods=['GET'])
-def get_quizzes_contributed():
-    pass
+            # Delete the user account
+            db.session.delete(user)
+            db.session.commit()
+            
+            # Logout the user
+            logout_user()
 
-# Advance students based on scores
-# Get all quizzes for a particular lecturer and count 
+            flash('Your account has been successfully deleted.', 'success')
+            return redirect(url_for('login'))
 
-# List to store predictions
-all_predictions = []
+    flash('Failed to delete your account. Please try again.', 'error')
+    return redirect(url_for('dashboard'))
+
+@app.route('/get_progress_report/<access_code>', methods=['GET'])
+def get_progress_report(access_code):
+    students_grades = Enrol.query.with_entities(Enrol.participantID, Enrol.score).filter(Enrol.access_code == access_code).all()
+
+    # Create a new PDF file
+    pdf_path = os.path.join(app.root_path, 'progress_report.pdf')  # Use app.root_path to get the root directory of your Flask app
+    c = canvas.Canvas(pdf_path)
+    y_position = 800
+
+    # Write the grades to the PDF
+    for student, grade in students_grades:
+        c.drawString(100, y_position, f"{student}: {grade}")
+        y_position -= 20  # Move the y position for the next line
+
+    c.save()
+
+    # Return the PDF file
+    try:
+        return send_file(pdf_path, as_attachment=True)
+    except FileNotFoundError:
+        return "PDF file not found", 404
 
 @app.route('/keypoints', methods=['POST'])
 def keypoints():
@@ -258,6 +295,60 @@ def keypoints():
 def takequiz():
     """Render website's quiz page."""
     return render_template('quiz.html')
+
+# --------------------------------------------------Functionality to implement
+
+@app.route('/leaderboard<room_code>', methods=['GET'])
+def leaderboard(room_code):
+    # Join Participant and Enrol tables, group by participantID, calculate total score
+    leaderboard_data = db.session.query(
+        Participant.participantID,
+        Participant.fname, 
+        Participant.lname,
+        func.sum(Enrol.score).label('total_score')
+    ).join(
+        Enrol, Participant.participantID == Enrol.participantID
+    ).filter(
+        Enrol.access_code == room_code
+    ).group_by(
+        Participant.participantID, Participant.fname
+    ).order_by(
+        func.sum(Enrol.score).desc()
+    ).all()
+
+    # Calculate rank based on total score
+    rank = 1
+    prev_score = None
+    formatted_leaderboard_data = []
+    for data in leaderboard_data:
+        if prev_score is not None and data.total_score < prev_score:
+            rank += 1
+        formatted_leaderboard_data.append({
+            'rank': rank,
+            'fname': data.fname,
+            'lname': data.lname,
+            'total_score': data.total_score
+        })
+        prev_score = data.total_score
+
+    return render_template('leaderboard.html', leaderboard_data=formatted_leaderboard_data)
+
+@app.route('/get_students', methods=['GET'])
+def get_students():
+    pass
+
+@app.route('/get_student', methods=['GET'])
+def get_student(studentID):
+    pass
+
+@app.route('/get_quizzes', methods=['GET'])
+def get_quizzes():
+    pass
+
+@app.route('/get_quizzes_contributed', methods=['GET'])
+def get_quizzes_contributed():
+    pass
+
 
 ###
 # The functions below should be applicable to all Flask apps.

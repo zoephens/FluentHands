@@ -46,7 +46,10 @@ class Participant(db.Model):
             return unicode(self.participantID)  # python 2 support
         except NameError:
             return str(self.participantID)  # python 3 support
-
+        
+    def is_admin(self):
+        return False
+    
     def __repr__(self):
         return '<Participant %r>' % (self.fname)
     
@@ -88,6 +91,9 @@ class Administrator(db.Model):
         except NameError:
             return str(self.administratorID)  # python 3 support
 
+    def is_admin(self):
+        return True
+    
     def __repr__(self):
         return '<Admin %r>' % (self.fname)
 
@@ -96,12 +102,12 @@ class Enrol(db.Model):
     __tablename__ = 'enrol'
 
     enrolID = db.Column(db.Integer, primary_key=True)
-    accessCode = db.Column(db.String(10), db.ForeignKey('administrator.access_code'), nullable=False)
+    access_code = db.Column(db.String(10), db.ForeignKey('administrator.access_code'), nullable=False)
     participantID = db.Column(db.Integer, db.ForeignKey('participant.participantID'), nullable=False)
     score = db.Column(db.Integer, default=0) #Initializes Score to 0
 
     def __init__(self, accessCode, participantID):
-        self.accessCode = accessCode
+        self.access_code = accessCode
         self.participantID = participantID
 
 # ImageQuestion Schema Model

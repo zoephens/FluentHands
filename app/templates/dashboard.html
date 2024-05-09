@@ -1,8 +1,49 @@
 {% extends "base.html" %}
 {% include "header.html" %}
+
 {% block main %}
-<h1 class="page-header">Dashboard</h1>
-{% include 'flash_messages.html' %}
+<!-- <h1 class="page-header">Dashboard</h1> -->
 
 <p class="lead">Placeholder for home page coding</p>
+<p>User: {{ fname }}</p>
+<!-- <p>Room Code: {{ room_code }}</p> -->
+<p>Access Code: <span id="access-code">{{ room_code }}</span><i class="fa fa-copy" onclick="copyAccessCode()" style="cursor: pointer; margin-left: 10px;"></i></p>
+
+<form id="delete-form" action="/delete_account" method="POST">
+    <button type="button" class="btn btn-primary" id="delete-btn">Delete Account</button>
+</form>
+
 {% endblock %}
+
+{% block js %} 
+<script>
+    document.getElementById("delete-btn").addEventListener("click", function() {
+        if (confirm("Are you sure you want to delete your account?")) {
+            document.getElementById("delete-form").submit();
+        }
+    });
+
+    
+    function copyAccessCode() {
+        var accessCode = document.getElementById('access-code').innerText;
+        
+        navigator.clipboard.writeText(accessCode).then(function() {
+            var notification = document.createElement('div');
+            notification.className = 'notification';
+            notification.textContent = 'Access code copied!';
+
+            document.body.appendChild(notification);
+
+            setTimeout(function() {
+                notification.style.opacity = 0;
+                setTimeout(function() {
+                    document.body.removeChild(notification);
+                }, 1000);
+            }, 2000); // Notification disappears after 2 seconds
+
+        }, function(err) {
+            console.error('Failed to copy access code: ', err);
+        });
+    }
+</script>
+{% endblock%}

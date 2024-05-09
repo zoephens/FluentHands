@@ -27,3 +27,4 @@ mediapipe
 # keras
 # tensorflowjs
 # flask-socketio
+reportlab
