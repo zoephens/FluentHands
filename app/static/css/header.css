@@ -1,6 +1,7 @@
 body {
     margin: 0;
     font-family: 'Avenir', sans-serif;
+    background-color: #d7eeff;
 }
 
 /* ----- Main Header -----*/
@@ -39,6 +40,7 @@ body {
 .right {
     flex: 1;
     text-align: center;
+    min-width: 0;
 }
 
 .left {
@@ -49,7 +51,8 @@ body {
 .hamburger-menu {
     display: inline-block;
     cursor: pointer;
-    margin-right: 20px;
+    margin-right: 40px;
+    margin-left: 10px;
 }
 
 .bar {
@@ -65,7 +68,8 @@ body {
 
 .right {
     text-align: right;
-    padding-right: 100px;
+    /* padding-right: 100px; */
+    justify-content: end;
 }
 
 .notification {
@@ -111,15 +115,16 @@ body {
 
 /* ----- Sidebar -----*/
 .sidebar {
-    position: fixed;
+    position: absolute;
     top: 80px; /* Adjust to the height of the main header */
     left: -250px; /* Initially hide the sidebar */
     width: 250px;
-    height: calc(100% - 50px); /* Adjust to the height of the main header */
+    height: 100vh; /* Extend to the entire height of the viewport */ 
     background-color: #363A44;
     transition: left 0.3s ease;
     z-index: 1; /* Ensure sidebar is behind the main content */
 }
+
 
 .sidebar.open {
     left: 0;
@@ -190,4 +195,100 @@ body {
 
 .sidebar-section p a:hover + .dropdown-content {
     display: block;
+}
+
+.back-to-top {
+    position: absolute;
+    padding: 20px 0px;
+    bottom: 20px; /* Adjust as needed */
+    left: 50%; /* Place it in the middle horizontally */
+    transform: translateX(-50%); /* Center it horizontally */
+    width: 100%;
+    text-align: center;
+    z-index: 3; /* Ensure it's above other sidebar content */
+}
+
+.back-to-top a {
+    color: #fff;
+    text-decoration: none;
+}
+
+.back-to-top a:hover {
+    color: #AADBFF;
+}
+
+  /* Dashboard styles */
+.dashboard-content {
+    height: 100vh;
+    /* margin: 0; */
+}
+
+
+.left a {
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+}
+
+/* Cards */
+.card {
+    width: 360px;
+    height: 150px;
+    border: none;
+}
+
+/* Badges */
+.badge img {
+    width: 55px;
+    height: auto;
+}
+
+/* Tooltip container */
+.badge-img {
+    position: relative;
+    display: inline-block;
+}
+
+/* Tooltip text */
+.badge-img::after {
+    content: attr(data-tooltip); /* This gets the tooltip text from the data-tooltip attribute */
+    visibility: hidden;
+    width: 120px;
+    background-color: black;
+    color: #fff;
+    text-align: center;
+    border-radius: 6px;
+    padding: 5px 0;
+    position: absolute;
+    z-index: 1;
+    bottom: 125%;
+    left: 50%;
+    transform: translateX(-50%);
+    opacity: 0;
+    transition: opacity 0.6s;
+}
+
+/* Tooltip arrow */
+.badge-img::before {
+    content: "";
+    visibility: hidden;
+    position: absolute;
+    top: 100%;
+    left: 50%;
+    margin-left: -5px;
+    border-width: 5px;
+    border-style: solid;
+    border-color: black transparent transparent transparent;
+    transition: opacity 0.6s;
+}
+
+/* Show the tooltip text when you hover over the tooltip container */
+.badge-img:hover::after, .badge-img:hover::before {
+    visibility: visible;
+    opacity: 1;
+}
+
+/* Classmates Table Style */
+.highlight {
+    font-weight: bold; /* Optional: change text color if needed */
 }

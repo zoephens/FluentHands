@@ -1,7 +1,22 @@
 {% with messages = get_flashed_messages(with_categories=true) %}
   {% if messages %}
-    {% for category, message in messages %}
-      <div class="alert alert-{{ category }}">{{ message }}</div>
-    {% endfor %}
+    <div class="flash-messages">
+      {% for category, message in messages %}
+        <div class="alert alert-{{ category }} fade show" role="alert">{{ message }}</div>
+      {% endfor %}
+    </div>
+    <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      setTimeout(function() {
+          var alerts = document.querySelectorAll('.alert');
+          alerts.forEach(function(alert) {
+              alert.style.opacity = '0';  // Fade out by changing opacity
+              setTimeout(function() {
+                  alert.style.display = 'none';  // Then set display none to remove it from layout
+              }, 600);  // This timeout should match your transition duration if you have one
+          });
+      }, 3000); // Hides messages after 3000 ms (3 seconds)
+    });    
+    </script>
   {% endif %}
 {% endwith %}

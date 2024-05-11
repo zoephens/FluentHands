@@ -29,6 +29,7 @@ with open(label_path, 'r') as file:
 
 # List to store predictions
 all_predictions = []
+user_email = ''
 
 ###
 # Routing for your application.
@@ -44,14 +45,17 @@ def dashboard():
         admin = Administrator.query.filter_by(administratorID=current_user.administratorID).first()
         room_code = admin.access_code
         is_admin = True
+        id_num = current_user.administratorID
+        return render_template('dashboard.html', fname=first_name, room_code=room_code, is_admin=is_admin, id_num=id_num)
     else:
         # If the current user is a participant
         participant = Participant.query.filter_by(participantID=current_user.participantID).first()
         enrol = Enrol.query.filter_by(participantID=current_user.participantID).first()
         room_code = enrol.access_code if enrol else None
+        level = participant.level
+        id_num = current_user.participantID
         is_admin = False
-
-    return render_template('dashboard.html', fname=first_name, room_code=room_code, is_admin=is_admin)
+        return render_template('dashboard.html', fname=first_name, room_code=room_code, is_admin=is_admin, level=level, id_num=id_num)
 
 @app.route('/signup', methods=['POST', 'GET'])
 def register():
@@ -88,8 +92,9 @@ def register():
             flash('Registration Successful', 'success')
 
             if account_type == 'participant':
-                user = db.session.query(Participant).filter_by(email=email).first()
-                login_user(user)
+                user_email = email
+                # user = db.session.query(Participant).filter_by(email=email).first()
+                # login_user(user)
                 return redirect(url_for('enrol'))
             elif account_type == 'admin':
                 user = db.session.query(Administrator).filter_by(email=email).first()
@@ -102,28 +107,30 @@ def register():
     return render_template("signup.html", form=signup_form)
 
 @app.route('/enrol', methods=['POST', 'GET'])
-@login_required
 def enrol():
     form = EnrolForm()
 
     if form.validate_on_submit():
         code = form.room_code.data
-        # Check if code is in database
-
-        enrol = Enrol(
-            accessCode = code,
-            participantID = current_user.participantID
-        )
-        db.session.add(enrol)
+        user_email = session.get('user_email') 
 
         try:
+            user = db.session.query(Participant).filter_by(email=user_email).first()
+
+            enrol = Enrol(
+                accessCode = code,
+                participantID = user.participantID
+            )
+            db.session.add(enrol)
+
             db.session.commit()
+            login_user(user)
+
             flash('Enrolment Successful', 'success')
             return redirect(url_for('dashboard'))
         except Exception as e:
             db.session.rollback()
-            # flash(f'Enrolment Failed: {str(e)}', 'error')
-            flash(f'Invalid Code', 'error')
+            flash(f'Invalid Code {e}', 'error')
 
     return render_template("roomcode.html", form=form)
 
@@ -134,6 +141,7 @@ def login():
     if form.validate_on_submit():
         email = form.email.data
         password = form.password.data
+        session['user_email'] = email
 
         # Query the database for the user
         user = db.session.query(Participant).filter_by(email=email).first()
@@ -143,6 +151,14 @@ def login():
 
         if user is not None:
             if check_password_hash(user.password, password):
+
+                # Check if Participant is enrolled
+                if isinstance(user, Participant):
+                    enrolment = db.session.query(Enrol).filter_by(participantID=user.participantID).first()
+                    if not enrolment:
+                        flash('No enrolment record found for participant.', 'warning')
+                        return redirect(url_for('enrol'))
+                    
                 # Login successful, redirect to dashboard or other page
                 login_user(user)
                 flash('Login Successful', 'success')
@@ -156,6 +172,7 @@ def login():
 
 @app.route('/logout')
 def logout():
+    session.pop('user_email', None)
     logout_user()
     flash('You have been logged out', 'success')
     return redirect(url_for("login"))
@@ -243,6 +260,7 @@ def delete_account():
     flash('Failed to delete your account. Please try again.', 'error')
     return redirect(url_for('dashboard'))
 
+# Try to make the progress report pretty
 @app.route('/get_progress_report/<access_code>', methods=['GET'])
 def get_progress_report(access_code):
     students_grades = Enrol.query.with_entities(Enrol.participantID, Enrol.score).filter(Enrol.access_code == access_code).all()
@@ -296,59 +314,169 @@ def takequiz():
     """Render website's quiz page."""
     return render_template('quiz.html')
 
-# --------------------------------------------------Functionality to implement
+# @app.route('/leaderboard<room_code>', methods=['GET'])
+# def leaderboard(room_code):
+#     # Join Participant and Enrol tables, group by participantID, calculate total score
+#     leaderboard_data = db.session.query(
+#         Participant.participantID,
+#         Participant.fname, 
+#         Participant.lname,
+#         func.sum(Enrol.score).label('total_score')
+#     ).join(
+#         Enrol, Participant.participantID == Enrol.participantID
+#     ).filter(
+#         Enrol.access_code == room_code
+#     ).group_by(
+#         Participant.participantID, Participant.fname
+#     ).order_by(
+#         func.sum(Enrol.score).desc()
+#     ).all()
 
-@app.route('/leaderboard<room_code>', methods=['GET'])
+#     # Calculate rank based on total score
+#     rank = 1
+#     prev_score = None
+#     formatted_leaderboard_data = []
+#     for data in leaderboard_data:
+#         if prev_score is not None and data.total_score < prev_score:
+#             rank += 1
+#         formatted_leaderboard_data.append({
+#             'rank': rank,
+#             'fname': data.fname,
+#             'lname': data.lname,
+#             'total_score': data.total_score
+#         })
+#         prev_score = data.total_score
+
+#     return jsonify(formatted_leaderboard_data)
+
+@app.route('/leaderboard/<room_code>', methods=['GET'])
 def leaderboard(room_code):
-    # Join Participant and Enrol tables, group by participantID, calculate total score
     leaderboard_data = db.session.query(
         Participant.participantID,
         Participant.fname, 
         Participant.lname,
-        func.sum(Enrol.score).label('total_score')
+        db.func.sum(Enrol.score).label('total_score')
     ).join(
         Enrol, Participant.participantID == Enrol.participantID
     ).filter(
         Enrol.access_code == room_code
     ).group_by(
-        Participant.participantID, Participant.fname
+        Participant.participantID
     ).order_by(
-        func.sum(Enrol.score).desc()
+        db.func.sum(Enrol.score).desc()
     ).all()
 
-    # Calculate rank based on total score
-    rank = 1
-    prev_score = None
     formatted_leaderboard_data = []
-    for data in leaderboard_data:
-        if prev_score is not None and data.total_score < prev_score:
-            rank += 1
+    for idx, data in enumerate(leaderboard_data):
         formatted_leaderboard_data.append({
-            'rank': rank,
+            'rank': idx + 1,
+            'participantID': data.participantID,
             'fname': data.fname,
             'lname': data.lname,
-            'total_score': data.total_score
+            'total_score': data.total_score,
+            'quiz_count': 0  # Placeholder, will be updated later
         })
-        prev_score = data.total_score
 
-    return render_template('leaderboard.html', leaderboard_data=formatted_leaderboard_data)
+    return jsonify(formatted_leaderboard_data)
 
-@app.route('/get_students', methods=['GET'])
-def get_students():
-    pass
+@app.route('/get_students/<room_code>', methods=['GET'])
+def get_students(room_code):
+    # Join Participant and Enrol tables, group by participantID, calculate total score
+    students = db.session.query(
+        Participant.participantID,
+        Participant.fname, 
+        Participant.lname,
+        Participant.email,
+        Participant.level
+    ).join(
+        Enrol, Participant.participantID == Enrol.participantID
+    ).filter(
+        Enrol.access_code == room_code
+    ).group_by(
+        Participant.participantID
+    ).all()
 
-@app.route('/get_student', methods=['GET'])
-def get_student(studentID):
+    for data in students:
+        students_data = []
+        students_data.append({
+            'student_id': data.participantID,
+            'first_name': data.fname,
+            'last_name': data.lname,
+            'email': data.email,
+            'level': data.level
+        })
+
+    return jsonify(students_data)
+
+@app.route('/get_quiz_count/<userID>', methods=['GET'])
+def get_quiz_count(userID):
+    # First, determine if the ID belongs to a Participant or an Administrator
+    participant = db.session.query(Participant).filter_by(participantID=userID).first()
+    if participant:
+        # If the ID belongs to a Participant, count quizzes taken by the participant
+        count = db.session.query(Administered).filter(Administered.participantID == userID).count()
+        return jsonify({'participantID': userID, 'quiz_count': count, 'role': 'Participant'})
+    else:
+        # If not a Participant, check if it is an Administrator
+        admin = db.session.query(Administrator).filter_by(administratorID=userID).first()
+        if admin:
+            # Count quizzes administered by the admin
+            count = db.session.query(Quiz).filter(Quiz.adminID == userID).count()
+            return jsonify({'adminID': userID, 'quiz_count': count, 'role': 'Administrator'})
+        else:
+            # If neither, return an error message
+            return jsonify({'error': 'No valid Participant or Administrator found with the provided ID'}), 404
+
+@app.route('/get_ques_contributed/<int:adminID>', methods=['GET'])
+def get_ques_contributed(adminID):
+    try:
+        cam_count = CamQuestion.query.filter_by(adminID=adminID).count()
+        image_count = ImageQuestion.query.filter_by(adminID=adminID).count()
+        total_contributed = cam_count + image_count
+    except Exception as e:
+        # Log the error and return a 500 server error
+        app.logger.error(f"Database error: {e}")
+        abort(500, description="Database error")
+
+    return jsonify({
+        'adminID': adminID,
+        'total_contributed': total_contributed,
+        'details': {
+            'cam_questions': cam_count,
+            'image_questions': image_count
+        }
+    })
+
+@app.route('/top_scorer/<room_code>', methods=['GET'])
+def top_scorer(room_code):
+    # Query to find the highest score and associated participantID
+    top_score = db.session.query(
+        Enrol.participantID,
+        db.func.max(Enrol.score).label('max_score')
+    ).filter(Enrol.access_code == room_code
+    ).group_by(Enrol.participantID
+    ).order_by(db.desc('max_score')).first()
+
+    if top_score:
+        # Query to get participant details
+        participant = Participant.query.filter_by(participantID=top_score.participantID).first()
+        if participant:
+            return jsonify({
+                'participantID': participant.participantID,
+                'name': f"{participant.fname} {participant.lname}",
+                'score': top_score.max_score
+            })
+    return jsonify({'error': 'No scores found'}), 404
+
+# --------------------------------------------------Functionality to implement
+
+@app.route('/get_student/<participantID>', methods=['GET'])
+def get_student(participantID):
     pass
 
 @app.route('/get_quizzes', methods=['GET'])
 def get_quizzes():
     pass
-
-@app.route('/get_quizzes_contributed', methods=['GET'])
-def get_quizzes_contributed():
-    pass
-
 
 ###
 # The functions below should be applicable to all Flask apps.
