@@ -1,6 +1,6 @@
 /* Global styles */
 
-.lessondiv, .learning-materials-container {
+.lessondiv {
     width: 100%; /* Make both sections fill the width */
     background-color: #ffffff;
     border: 1px solid #d1d1d1;
@@ -8,6 +8,7 @@
     border-radius: 8px;
     margin-bottom: 20px; /* Space between sections */
     padding: 20px;
+    padding-left: 50px;
 }
 
 .Studentscontainer th, td {
@@ -16,13 +17,14 @@
     border: 1px solid #aaaaaa;
 }
 
-.Studentscontainer h1{
+.Studentscontainer h1, .lessondiv h1{
     margin: 0;
     color: #333;
     font-size: 30px;
+    padding-bottom: 50px;
 }
 
-.Studentscontainer h2{
+.Studentscontainer h2, .lessondiv h2{
     font-size: 15px;
     color: #9DA2AF;
     
@@ -101,6 +103,7 @@ button:hover {
     border: 1px solid #d1d1d1;
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
     border-radius: 8px;
+    padding-bottom: 50px;
 }
 
 .search-box {
@@ -134,25 +137,19 @@ button:hover {
     font-weight: bold;
 }
 
-.lessondiv {
-    background-color: #ffffff;
-    padding: 20px;
-    margin-top: 20px;
-    border: 1px solid #d1d1d1;
-    border-radius: 8px;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-}
-
 .lessons-container {
     overflow-x: auto;
     white-space: nowrap;
     padding-bottom: 10px; /* To ensure cards don't get cut off */
+    padding-right: 30px;
 }
 
 .lessons {
     display: inline-flex;
     gap: 20px;
-    padding-left: 20px;
+    display: flex;
+    justify-content: space-between;
+    /* padding-left: 20px; */
 }
 
 .lesson-card {
@@ -540,6 +537,13 @@ input[type="radio"]:checked::before {
     padding: 30px;
 }
 
+.learning-materials-section h2 {
+    padding-bottom: 20px;
+}
+
+.learning-materials-section p {
+    color: #9DA2AF;
+}
 
 /* Remove any outermost padding or borders on quizdiv */
 .quizdiv {

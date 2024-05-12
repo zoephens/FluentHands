@@ -184,6 +184,13 @@ def add_lesson():
     image_form = ImageQuestionForm()
     text_form = TextQuestionForm()
 
+    if isinstance(current_user, Administrator):
+        # If the current user is an admin
+        admin = Administrator.query.filter_by(administratorID=current_user.administratorID).first()
+        room_code = admin.access_code
+        is_admin = True
+        id_num = current_user.administratorID
+
     if lesson_form.validate_on_submit():
         adminID = current_user.id
         file = text_form.photo.data
@@ -228,37 +235,26 @@ def add_lesson():
         flash('Lesson Created Successfully', 'success')
         return redirect(url_for('/'))
 
-    return render_template('lesson_plan.html', lesson_form=lesson_form, image_form=image_form, text_form=text_form)
+    return render_template('lesson_plan.html', fname=admin.fname, room_code=room_code, is_admin=is_admin, id_num=id_num, lesson_form=lesson_form, image_form=image_form, text_form=text_form)
 
 @app.route('/delete_account', methods=['POST'])
 def delete_account():
     if current_user.is_authenticated:
         if isinstance(current_user, Administrator):
-            # Delete admin account
             user_id = current_user.administratorID
-            user = Administrator.query.get(user_id)
         else:
-            # Delete participant account
             user_id = current_user.participantID
-            user = Participant.query.get(user_id)
+
+        user = Administrator.query.get(user_id) if isinstance(current_user, Administrator) else Participant.query.get(user_id)
 
         if user:
-            # Delete enrol records associated with the user
             Enrol.query.filter_by(participantID=user_id).delete()
-            db.session.commit()
-
-            # Delete the user account
             db.session.delete(user)
             db.session.commit()
-            
-            # Logout the user
             logout_user()
+            return jsonify({'redirect': url_for('login')}), 200
 
-            flash('Your account has been successfully deleted.', 'success')
-            return redirect(url_for('login'))
-
-    flash('Failed to delete your account. Please try again.', 'error')
-    return redirect(url_for('dashboard'))
+    return jsonify({'error': 'Failed to delete your account. Please try again.'}), 400
 
 # Try to make the progress report pretty
 @app.route('/get_progress_report/<access_code>', methods=['GET'])
@@ -349,6 +345,8 @@ def takequiz():
 
 #     return jsonify(formatted_leaderboard_data)
 
+# For an Admin there needs to be multiple leaderboards where they can see
+# Students of all levels
 @app.route('/leaderboard/<room_code>', methods=['GET'])
 def leaderboard(room_code):
     leaderboard_data = db.session.query(
@@ -394,10 +392,10 @@ def get_students(room_code):
         Enrol.access_code == room_code
     ).group_by(
         Participant.participantID
-    ).all()
+    ).order_by(Participant.lname).all() # Ordering by lastname
 
+    students_data = []
     for data in students:
-        students_data = []
         students_data.append({
             'student_id': data.participantID,
             'first_name': data.fname,
@@ -405,7 +403,6 @@ def get_students(room_code):
             'email': data.email,
             'level': data.level
         })
-
     return jsonify(students_data)
 
 @app.route('/get_quiz_count/<userID>', methods=['GET'])
@@ -476,6 +473,10 @@ def get_student(participantID):
 
 @app.route('/get_quizzes', methods=['GET'])
 def get_quizzes():
+    pass
+
+@app.route('/create_quiz', methods=['GET'])
+def create_quizzes():
     pass
 
 ###

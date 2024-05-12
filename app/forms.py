@@ -35,7 +35,8 @@ class ImageQuestionForm(FlaskForm):
     ])
 
 class LessonPlan(FlaskForm):
-    topic = StringField('Topic', validators=[InputRequired()])
+    topic = SelectField('Topic', choices=[('alphabet', 'Alphabet'), ('greetings', 'Greetings'), ('polite_words', 'Polite Words')], validators=[InputRequired(message='Please select a topic')])
+    
     NoQues = IntegerField('# of Questions', validators=[InputRequired()])
     due_date = DateField('Due Date', validators=[InputRequired()])
     overall_difficulty = overall_difficulty = SelectField('Overall Difficulty', choices=[('beginner', 'Beginner'), ('intermediate', 'Intermediate'), ('advanced', 'Advanced')], validators=[InputRequired()])

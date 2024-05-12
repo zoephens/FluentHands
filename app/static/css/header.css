@@ -119,7 +119,7 @@ body {
     top: 80px; /* Adjust to the height of the main header */
     left: -250px; /* Initially hide the sidebar */
     width: 250px;
-    height: 100vh; /* Extend to the entire height of the viewport */ 
+    min-height: 100vh; /* Extend to the entire height of the viewport */ 
     background-color: #363A44;
     transition: left 0.3s ease;
     z-index: 1; /* Ensure sidebar is behind the main content */
@@ -292,3 +292,16 @@ body {
 .highlight {
     font-weight: bold; /* Optional: change text color if needed */
 }
+
+.Studentheader {
+    display: flex;          /* Enables flexbox */
+    justify-content: space-between; /* Spaces children to start and end */
+    align-items: center;    /* Vertically centers children in the line */
+    padding: 10px;          /* Adds some padding around the contents */
+    padding-bottom: 0;
+}
+
+.Studentheader h1 {
+    margin: 0;              /* Removes default margin to tighten control */
+}
+

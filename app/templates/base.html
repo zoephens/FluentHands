@@ -89,11 +89,12 @@
             <div class="sidebar-section">
               <h5 style="color: #C3C4C7; font-size: 14px;">STUDENTS</h5>
               {% if is_admin %}
-              <p><i class="fa fa-users" aria-hidden="true"></i><a href="#" style="color: #fff;">View Students</a></p>
+              <p><i class="fa fa-users" aria-hidden="true"></i><a href="#" style="color: #fff;">View Participants</a></p>
+              <p><i class="fa-solid fa-ranking-star" aria-hidden="true"></i><a href="#Leaderboard" style="color: #fff;">Leaderboard</a></p>
               {% else %}
               <p><i class="fa fa-users" aria-hidden="true"></i><a href="#" style="color: #fff;">View Classmates</a></p>
+              <p><i class="fa-solid fa-ranking-star" aria-hidden="true"></i><a href="#Leaderboard" style="color: #fff;">Leaderboard</a></p>  
               {% endif %}
-              <p><i class="fa-solid fa-ranking-star" aria-hidden="true"></i><a href="#" style="color: #fff;">Leaderboard</a></p>
             </div>
 
             <br>
@@ -101,7 +102,8 @@
             <div class="sidebar-section">
               <h5 style="color: #C3C4C7; font-size: 14px;">LEARNING MATERIALS</h5>
               {% if is_admin %}
-              <p><i class="fa fa-file" aria-hidden="true"></i></i><a href="#" style="color: #fff;">Lesson Plans</a></p>
+              <!-- This should either show a list of all lessons or to the add lesson screen -->
+              <p><i class="fa fa-file" aria-hidden="true"></i></i><a href="{{ url_for('add_lesson') }}" style="color: #fff;">Lesson Plans</a></p>
               {% else %}
               <p><i class="fa fa-file" aria-hidden="true"></i></i><a href="#" style="color: #fff;">View Quizzes</a></p>
               {% endif %}
@@ -127,11 +129,9 @@
                     <i id="angle-icon" class="fa fa-angle-right" style="padding-left: 10px" aria-hidden="true"></i>
                 </a>
               </p>
-
               
               <!-- Dropdown content -->
               <div class="dropdown-content">
-                <!-- <p style="margin-left: 20px;"><i class="fa fa-trash" aria-hidden="true" style="margin-right: 5px; color: #D8584D;"></i><a href="#" style="color: #D8584D;">Delete Account</a></p> -->
                 <form id="delete-form" action="/delete_account" method="POST">
                   <button type="button" id="delete-btn" class="btn btn-unstyled p-0 m-0" style="background: none; border: none; color: inherit;">
                     <p style="margin-left: 20px; display: inline-block; cursor: pointer;">
@@ -178,6 +178,7 @@
     </footer>
 
     <!-- Include all compiled plugins (below), or include individual files as needed -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script src="{{ url_for('static', filename='js/bootstrap.bundle.min.js') }}"></script>
     <script src="{{ url_for('static', filename='js/jquery.min.js') }}"></script>
     <script>
@@ -267,6 +268,59 @@
             });
         }
       });
+    
+      //Delete User Account
+      document.getElementById('delete-form').addEventListener('click', function(event) {
+        event.preventDefault();
+    
+        Swal.fire({
+            title: 'Are you sure?',
+            text: "This action cannot be undone!",
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#d33',
+            cancelButtonColor: '#3085d6',
+            confirmButtonText: 'Yes, delete it!',
+            cancelButtonText: 'Cancel'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                fetch('/delete_account', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        // Include any necessary data here
+                    })
+                })
+                .then(response => response.json())  // assuming the server responds with JSON
+                .then(data => {
+                    if (data.redirect) {
+                        // Server response includes where to redirect
+                        window.location.href = data.redirect;  // Redirect the browser to the login page
+                    } else {
+                        // Handle no redirect information, stay on the current page, or display a message
+                        Swal.fire('Deleted!', 'Your account has been deleted.', 'success');
+                    }
+                })
+                .catch(error => {
+                    console.error('Deletion failed:', error);
+                    Swal.fire('Error!', 'Your account could not be deleted.', 'error');
+                });
+            }
+        });
+    });    
+
+      function adjustSidebarHeight() {
+        var sidebar = document.querySelector('.sidebar');
+        var bodyHeight = document.body.scrollHeight;
+        sidebar.style.height = bodyHeight + 150 + 'px';
+    }
+
+    // Run on load and on window resize
+    window.onload = adjustSidebarHeight;
+    window.onresize = adjustSidebarHeight;
+
     </script>
     {% block js %} 
     {% endblock%}

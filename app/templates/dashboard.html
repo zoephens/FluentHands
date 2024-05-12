@@ -77,13 +77,13 @@
         {% endif %}
     </div>
 
-    <!-- Centered wrapper for Views -->
+    <!-- ----------------------------------- -->
     {% if is_admin %}
     <!-- Views For An Admin -->
     <div class="Studentscontainer">
         <div class="insidestudent">
             <div class="Studentheader">
-                <h1>Students</h1>
+                <h1>Participants</h1>
                 <div class="search-box">
                     <div class="input-icon-container">
                         <input type="search" id="studentSearch" placeholder="">
@@ -92,8 +92,8 @@
                 </div>
             </div>
                 
-            <section class="table">
-                <h2>View Students</h2>
+            <section class="table" id="Leaderboard">
+                <h2>View Participants</h2>
                 <table>
                     <thead>
                         <tr>
@@ -116,7 +116,7 @@
                     <thead>
                         <tr>
                             <th>Rank</th>
-                            <th>Student ID</th>
+                            <th>Participant ID</th>
                             <th>Total Points</th>
                             <th>Participation (%)</th>
                         </tr>
@@ -131,11 +131,9 @@
             <br>
         </div>
     </div>
-    
     <br>
-
     <!-- Centered wrapper for Learning Materials -->
-    <div class="lessondiv">
+    <div class="container-fluid lessondiv">
         <div class="lessons-container">
             <div class="thelessonbackground">
                 <h1>Learning Materials</h1>
@@ -162,22 +160,23 @@
         </div>
 
         <div class="align-right">
-            <a href="lessonplan.html">
+            <a href="#">
                 <button>Add New</button>
             </a>
         </div>
     </div>
 
     {% else %}
-    <div class="Studentscontainer">
+    <!-- View for Students -->
+    <div class="Studentscontainer" id="Classroom">
         <div class="insidestudent">
             <div class="Studentheader">
                 <h1>Classroom</h1>
                 <div class="search-box"><input type="search" id="studentSearch" placeholder="Search Classmates..."> </div>
             </div>
             
-            <h2>View Classmates</h2>
-            <section class="table">
+            <section class="table" id="Leaderboard">
+                <h2>View Classmates</h2>
                 <table>
                     <thead>
                         <tr>
@@ -197,7 +196,7 @@
             
             <!-- Leaderboard -->
             <section class="table">
-                <h2>Leaderboard</h2>
+                <h2 >Leaderboard</h2>
                 <table>
                     <thead>
                         <tr>
@@ -217,9 +216,7 @@
             </section>
         </div>
     </div>
-
     <br>
-
     <!-- Centered wrapper for Learning Materials -->
     <div class="container-fluid" style="padding: 0">
         <div class="row">
@@ -266,6 +263,7 @@
         </div>
     </div>
     {% endif %}
+    <!-- ----------------------------------- -->
 </div>
 <!-- End of Main Content -->
 
@@ -371,7 +369,7 @@
         });
 
         // Get the top scorer
-        if (isAdmin === "False") {
+        if (isAdmin) {
             fetchTopScorer();
         }
 

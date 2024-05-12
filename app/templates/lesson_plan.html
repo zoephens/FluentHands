@@ -1,147 +1,150 @@
-<!DOCTYPE html>
-<html lang="en">
+{% extends 'base.html' %}
+
 <head>
-    <meta charset="UTF-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Lesson Plan Form</title>
-    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    {% block css %}
+    {% endblock%}
 </head>
-<body>
-    <div class="container mt-5">
-        <h1>Lesson Plan Form</h1>
-        <form method="post">
-            {{ lesson_form.hidden_tag() }}
-            <div class="form-group">
-                {{ lesson_form.topic.label }}
-                {{ lesson_form.topic(class="form-control") }}
+
+{% block dashboard_content %}
+<div class="container mt-5 dashboard-content">
+    <h1>Lesson Plan Form</h1>
+    <form method="post">
+        {{ lesson_form.hidden_tag() }}
+        <div class="form-group">
+            {{ lesson_form.topic.label }}
+            {{ lesson_form.topic(class="form-control") }}
+        </div>
+        <div class="form-group">
+            {{ lesson_form.NoQues.label }}
+            {{ lesson_form.NoQues(class="form-control") }}
+        </div>
+        <div class="form-group">
+            {{ lesson_form.due_date.label }}
+            {{ lesson_form.due_date(class="form-control") }}
+        </div>
+        <div class="form-group">
+            {{ lesson_form.overall_difficulty.label }}
+            {{ lesson_form.overall_difficulty(class="form-control") }}
+        </div>
+        <div class="form-group">
+            {{ lesson_form.make_custom_questions.label }}
+            {{ lesson_form.make_custom_questions(id="make_custom_questions", class="form-check-input", style="margin-left: 10px") }}
+        </div>   
+        
+        <div id="custom-questions" style="display: none;">
+
+            <div id="text-questions">
+                <h3>Text-based Questions</h3>
+                <div id="text-question-fields"></div>
+                <button type="button" onclick="addTextQuestion()">Add Text Question</button>
             </div>
-            <div class="form-group">
-                {{ lesson_form.NoQues.label }}
-                {{ lesson_form.NoQues(class="form-control") }}
-            </div>
-            <div class="form-group">
-                {{ lesson_form.due_date.label }}
-                {{ lesson_form.due_date(class="form-control") }}
-            </div>
-            <div class="form-group">
-                {{ lesson_form.overall_difficulty.label }}
-                {{ lesson_form.overall_difficulty(class="form-control") }}
-            </div>
-            <div class="form-group">
-                {{ lesson_form.make_custom_questions.label }}
-                {{ lesson_form.make_custom_questions(id="make_custom_questions", class="form-check-input", style="margin-left: 10px") }}
-            </div>   
             
-            <div id="custom-questions" style="display: none;">
-
-                <div id="text-questions">
-                    <h3>Text-based Questions</h3>
-                    <div id="text-question-fields"></div>
-                    <button type="button" onclick="addTextQuestion()">Add Text Question</button>
-                </div>
-                
-                <div id="image-questions" style="margin-top: 10px">
-                    <h3>Image-based Questions</h3>
-                    <div id="image-question-fields"></div>
-                    <button type="button" onclick="addImageQuestion()">Add Image Question</button>
-                </div>
-                
+            <div id="image-questions" style="margin-top: 10px">
+                <h3>Image-based Questions</h3>
+                <div id="image-question-fields"></div>
+                <button type="button" onclick="addImageQuestion()">Add Image Question</button>
             </div>
-            <button type="submit" class="btn btn-primary" style="margin-top: 20px">Submit</button>
-        </form>
-    </div>
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
-    <script>
-        var textQuestionCounter = 0;
-        var imageQuestionCounter = 0;
+            
+        </div>
+        <button type="submit" class="btn btn-primary" style="margin-top: 20px">Submit</button>
+    </form>
+</div>
+{% endblock %}
 
-        document.addEventListener('DOMContentLoaded', function() {
-            var customQuestionsCheckbox = document.getElementById('make_custom_questions');
-            var customQuestionsDiv = document.getElementById('custom-questions');
-            var textQuestionsDiv = document.getElementById('text-questions');
-            var imageQuestionsDiv = document.getElementById('image-questions');
-        
-            customQuestionsCheckbox.addEventListener('change', function() {
-                if (this.checked) {
-                    customQuestionsDiv.style.display = 'block';
-                } else {
-                    customQuestionsDiv.style.display = 'none';
-                }
-            });
-        });       
-        
-        function addTextQuestion() {
-            textQuestionCounter++;
+{% block js %} 
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+<script>
+    var textQuestionCounter = 0;
+    var imageQuestionCounter = 0;
 
-            var textQuestionFields = document.getElementById('text-question-fields');
+    document.addEventListener('DOMContentLoaded', function() {
+        var customQuestionsCheckbox = document.getElementById('make_custom_questions');
+        
+        var customQuestionsDiv = document.getElementById('custom-questions');
+        var textQuestionsDiv = document.getElementById('text-questions');
+        var imageQuestionsDiv = document.getElementById('image-questions');
+    
+        console.log(customQuestionsDiv);
+        
+        customQuestionsCheckbox.addEventListener('change', function() {
+            if (this.checked) {
+                customQuestionsDiv.style.display = 'block';
+            } else {
+                customQuestionsDiv.style.display = 'none';
+            }
+        });
+    });       
+    
+    function addTextQuestion() {
+        textQuestionCounter++;
 
-            var questionInput = document.createElement('input');
-            questionInput.type = 'text';
-            questionInput.name = 'text_question_' + textQuestionCounter + '_question';
-            questionInput.placeholder = 'Enter question text';
-            textQuestionFields.appendChild(questionInput);
+        var textQuestionFields = document.getElementById('text-question-fields');
 
-            var difficultyInput = document.createElement('input');
-            difficultyInput.type = 'text';
-            difficultyInput.name = 'text_question_' + textQuestionCounter + '_difficulty';
-            difficultyInput.placeholder = 'Enter difficulty level';
-            textQuestionFields.appendChild(difficultyInput);
+        var questionInput = document.createElement('input');
+        questionInput.type = 'text';
+        questionInput.name = 'text_question_' + textQuestionCounter + '_question';
+        questionInput.placeholder = 'Enter question text';
+        textQuestionFields.appendChild(questionInput);
 
-            var marksInput = document.createElement('input');
-            marksInput.type = 'number';
-            marksInput.name = 'text_question_' + textQuestionCounter + '_marks';
-            marksInput.placeholder = 'Enter marks';
-            textQuestionFields.appendChild(marksInput);
+        var difficultyInput = document.createElement('input');
+        difficultyInput.type = 'text';
+        difficultyInput.name = 'text_question_' + textQuestionCounter + '_difficulty';
+        difficultyInput.placeholder = 'Enter difficulty level';
+        textQuestionFields.appendChild(difficultyInput);
 
-            var answerInput = document.createElement('input');
-            answerInput.type = 'text';
-            answerInput.name = 'text_question_' + textQuestionCounter + '_answer';
-            answerInput.placeholder = 'Enter answer';
-            textQuestionFields.appendChild(answerInput);
+        var marksInput = document.createElement('input');
+        marksInput.type = 'number';
+        marksInput.name = 'text_question_' + textQuestionCounter + '_marks';
+        marksInput.placeholder = 'Enter marks';
+        textQuestionFields.appendChild(marksInput);
 
-            var lineBreak = document.createElement('br');
-            textQuestionFields.appendChild(lineBreak);
-        }
+        var answerInput = document.createElement('input');
+        answerInput.type = 'text';
+        answerInput.name = 'text_question_' + textQuestionCounter + '_answer';
+        answerInput.placeholder = 'Enter answer';
+        textQuestionFields.appendChild(answerInput);
 
-        function addImageQuestion() {
-            imageQuestionCounter++;
-        
-            var imageQuestionFields = document.getElementById('image-question-fields');
-        
-            var questionInput = document.createElement('input');
-            questionInput.type = 'text';
-            questionInput.name = 'image_question_' + imageQuestionCounter + '_question';
-            questionInput.placeholder = 'Enter question text';
-            imageQuestionFields.appendChild(questionInput);
-        
-            var difficultyInput = document.createElement('input');
-            difficultyInput.type = 'text';
-            difficultyInput.name = 'image_question_' + imageQuestionCounter + '_difficulty';
-            difficultyInput.placeholder = 'Enter difficulty level';
-            imageQuestionFields.appendChild(difficultyInput);
-        
-            var marksInput = document.createElement('input');
-            marksInput.type = 'number';
-            marksInput.name = 'image_question_' + imageQuestionCounter + '_marks';
-            marksInput.placeholder = 'Enter marks';
-            imageQuestionFields.appendChild(marksInput);
-        
-            var photoInput = document.createElement('input');
-            photoInput.type = 'file';
-            photoInput.name = 'image_question_' + imageQuestionCounter + '_photo';
-            imageQuestionFields.appendChild(photoInput);
-        
-            var answerInput = document.createElement('input');
-            answerInput.type = 'text';
-            answerInput.name = 'image_question_' + imageQuestionCounter + '_answer';
-            answerInput.placeholder = 'Enter answer';
-            imageQuestionFields.appendChild(answerInput);
-        
-            var lineBreak = document.createElement('br');
-            imageQuestionFields.appendChild(lineBreak);
-        }        
-    </script>
-</body>
-</html>
+        var lineBreak = document.createElement('br');
+        textQuestionFields.appendChild(lineBreak);
+    }
+
+    function addImageQuestion() {
+        imageQuestionCounter++;
+    
+        var imageQuestionFields = document.getElementById('image-question-fields');
+    
+        var questionInput = document.createElement('input');
+        questionInput.type = 'text';
+        questionInput.name = 'image_question_' + imageQuestionCounter + '_question';
+        questionInput.placeholder = 'Enter question text';
+        imageQuestionFields.appendChild(questionInput);
+    
+        var difficultyInput = document.createElement('input');
+        difficultyInput.type = 'text';
+        difficultyInput.name = 'image_question_' + imageQuestionCounter + '_difficulty';
+        difficultyInput.placeholder = 'Enter difficulty level';
+        imageQuestionFields.appendChild(difficultyInput);
+    
+        var marksInput = document.createElement('input');
+        marksInput.type = 'number';
+        marksInput.name = 'image_question_' + imageQuestionCounter + '_marks';
+        marksInput.placeholder = 'Enter marks';
+        imageQuestionFields.appendChild(marksInput);
+    
+        var photoInput = document.createElement('input');
+        photoInput.type = 'file';
+        photoInput.name = 'image_question_' + imageQuestionCounter + '_photo';
+        imageQuestionFields.appendChild(photoInput);
+    
+        var answerInput = document.createElement('input');
+        answerInput.type = 'text';
+        answerInput.name = 'image_question_' + imageQuestionCounter + '_answer';
+        answerInput.placeholder = 'Enter answer';
+        imageQuestionFields.appendChild(answerInput);
+    
+        var lineBreak = document.createElement('br');
+        imageQuestionFields.appendChild(lineBreak);
+    }        
+</script>
+{% endblock%}
