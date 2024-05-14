@@ -12,6 +12,10 @@ from PIL import Image
 import os
 from flask import send_file
 from io import BytesIO
+from reportlab.lib import colors
+from reportlab.platypus import SimpleDocTemplate, Table, TableStyle, Image
+
+
 
 
 from sqlalchemy.orm import joinedload
@@ -252,45 +256,87 @@ def leaderboard(room_code):
 
     return jsonify(formatted_leaderboard_data)
 
+# --------- Progress Report ---------
+from reportlab.lib import colors
+from reportlab.lib.pagesizes import letter
+from reportlab.platypus import Table, TableStyle
+from reportlab.pdfgen import canvas
+from flask import send_file
+import os
 
-# Try to make the progress report pretty
-@app.route('/get_progress_report/<access_code>', methods=['GET'])
-def get_progress_report(access_code):
-    students_grades = Enrol.query.with_entities(Enrol.participantID, Enrol.score).filter(Enrol.access_code == access_code).all()
-
+# Function to generate the progress report PDF
+def generate_progress_report(access_code, students_grades):
     # Create a new PDF file
     pdf_path = os.path.join(app.root_path, 'progress_report.pdf')  
-    c = canvas.Canvas(pdf_path, pagesize=letter)  # Set page size to letter (8.5x11 inches)
 
-    # Read the image using PIL directly
-    background_path = "app/pr-1.png"  # Path to your background template image
-    try:
-        img = Image.open(background_path)
-    except Exception as e:
-        print("Error opening image:", e)
-        return "Error opening image", 500
+    # Create canvas
+    c = canvas.Canvas(pdf_path, pagesize=letter)
 
-    # Convert the PIL Image to a BytesIO object
-    img_bytes_io = BytesIO()
-    img.save(img_bytes_io, format='PNG')
-    img_bytes_io.seek(0)  # Reset the pointer to the beginning of the BytesIO object
+    # Define background image path
+    background_path = os.path.join(app.root_path, 'pr-1.png')
 
-    # Draw the image onto the canvas
-    c.drawImage(ImageReader(img_bytes_io), 0, 0, width=letter[0], height=letter[1], preserveAspectRatio=True)
 
-    # Write the grades to the PDF
-    y_position = 750  # Adjust y position based on template
-    for student, grade in students_grades:
-        c.drawString(100, y_position, f"{student}: {grade}")
-        y_position -= 20  # Move the y position for the next line
+    # Draw background design PNG onto the canvas
+    c.drawImage(background_path, 0, 0, width=letter[0], height=letter[1], preserveAspectRatio=True)
 
+    # Define table data
+    table_data = [['Participant ID', 'First Name', 'Last Name', 'Score']]
+
+    # Populate table data
+    for participant_id, score, first_name, last_name in students_grades:
+        table_data.append([participant_id, first_name, last_name, score])
+
+    # Define column widths
+    col_widths = [80, 100, 100, 50]  # Adjust these values as needed
+
+    # Create table
+    table = Table(table_data, colWidths=col_widths)
+
+    # Add style to table
+    style = TableStyle([
+        ('BACKGROUND', (0, 0), (-1, 0), colors.HexColor('#657CD5')),  
+        ('TEXTCOLOR', (0, 0), (-1, 0), colors.white),  
+        ('ALIGN', (0, 0), (-1, -1), 'CENTER'), 
+        ('VALIGN', (0, 0), (-1, 0), 'MIDDLE'),
+        ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),  
+        ('BOTTOMPADDING', (0, 0), (-1, 0), 12),  
+        ('GRID', (0, 0), (-1, -1), 2.5, colors.white) 
+    ])
+
+    table.setStyle(style)
+
+    page_width = letter[0]  
+    table_width = 400  
+    midpoint = (page_width - table_width) / 2  
+
+
+    # Position table on the canvas
+    table.wrapOn(c, 400, 200)
+    table.drawOn(c, midpoint + 25, 625) 
+
+    # Save canvas
     c.save()
+
+    # Return the PDF file path
+    return pdf_path
+
+# Route to get the progress report
+@app.route('/get_progress_report/<access_code>', methods=['GET'])
+def get_progress_report(access_code):
+    # Retrieve information from the database (you'll need to adjust this query based on your database structure)
+    students_grades = db.session.query(Enrol.participantID, Enrol.score, Participant.fname, Participant.lname).join(Participant).filter(Enrol.access_code == access_code).all()
+
+    # Generate the progress report PDF
+    pdf_path = generate_progress_report(access_code, students_grades)
 
     # Return the PDF file
     try:
         return send_file(pdf_path, as_attachment=True)
     except FileNotFoundError:
         return "PDF file not found", 404
+
+
+
 
 @app.route('/get_students/<room_code>', methods=['GET'])
 def get_students(room_code):
