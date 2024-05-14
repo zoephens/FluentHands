@@ -181,7 +181,7 @@ class Quiz(db.Model):
 class Administered(db.Model):
     __tablename__ = 'administered'
 
-    participantID = db.Column(db.Integer, db.ForeignKey('participant.participantID'), primary_key=True)
+    participantID = db.Column(db.Integer)
     quizID = db.Column(db.Integer, db.ForeignKey('quiz.quizID'), primary_key=True)
     score = db.Column(db.Integer, nullable=False)
     feedback = db.Column(db.Text)

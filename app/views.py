@@ -2,10 +2,18 @@ import os, json
 from app import app, db, login_manager
 from flask import jsonify, Response, render_template, request, redirect, url_for, flash, session, abort, send_from_directory, send_file
 from flask_login import login_user, logout_user, current_user, login_required
-from werkzeug.security import check_password_hash, generate_password_hash
+from werkzeug.security import check_password_hash
 from werkzeug.utils import secure_filename
 
 from reportlab.pdfgen import canvas
+from reportlab.lib.pagesizes import letter
+from reportlab.lib.utils import ImageReader
+from reportlab.lib import colors
+from reportlab.platypus import SimpleDocTemplate, Table, TableStyle, Image
+
+from PIL import Image
+from io import BytesIO
+
 from sqlalchemy.orm import joinedload
 from sqlalchemy.orm import subqueryload
 from sqlalchemy import func, or_
@@ -121,7 +129,7 @@ def register():
             
         except Exception as e:
             db.session.rollback()
-            flash(f'Registration Failed: {str(e)}', 'error')
+            flash(f'Registration Failed: {str(e)}', 'danger')
     return render_template("signup.html", form=signup_form)
 
 @app.route('/enrol', methods=['POST', 'GET'])
@@ -148,7 +156,7 @@ def enrol():
             return redirect(url_for('dashboard'))
         except Exception as e:
             db.session.rollback()
-            flash(f'Invalid Code {e}', 'error')
+            flash(f'Invalid Code {e}', 'danger')
 
     return render_template("roomcode.html", form=form)
 
@@ -253,22 +261,72 @@ def leaderboard(room_code):
 
     return jsonify(formatted_leaderboard_data)
 
-# Try to make the progress report pretty
+# --------- Progress Report ---------
+
+# Function to generate the progress report PDF
+def generate_progress_report(access_code, students_grades):
+    # Create a new PDF file
+    pdf_path = os.path.join(app.root_path, 'progress_report.pdf')  
+
+    # Create canvas
+    c = canvas.Canvas(pdf_path, pagesize=letter)
+
+    # Define background image path
+    background_path = os.path.join(app.root_path, 'pr-1.png')
+
+
+    # Draw background design PNG onto the canvas
+    c.drawImage(background_path, 0, 0, width=letter[0], height=letter[1], preserveAspectRatio=True)
+
+    # Define table data
+    table_data = [['Participant ID', 'First Name', 'Last Name', 'Score']]
+
+    # Populate table data
+    for participant_id, score, first_name, last_name in students_grades:
+        table_data.append([participant_id, first_name, last_name, score])
+
+    # Define column widths
+    col_widths = [80, 100, 100, 50]  # Adjust these values as needed
+
+    # Create table
+    table = Table(table_data, colWidths=col_widths)
+
+    # Add style to table
+    style = TableStyle([
+        ('BACKGROUND', (0, 0), (-1, 0), colors.HexColor('#657CD5')),  
+        ('TEXTCOLOR', (0, 0), (-1, 0), colors.white),  
+        ('ALIGN', (0, 0), (-1, -1), 'CENTER'), 
+        ('VALIGN', (0, 0), (-1, 0), 'MIDDLE'),
+        ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),  
+        ('BOTTOMPADDING', (0, 0), (-1, 0), 12),  
+        ('GRID', (0, 0), (-1, -1), 2.5, colors.white) 
+    ])
+
+    table.setStyle(style)
+
+    page_width = letter[0]  
+    table_width = 400  
+    midpoint = (page_width - table_width) / 2  
+
+
+    # Position table on the canvas
+    table.wrapOn(c, 400, 200)
+    table.drawOn(c, midpoint + 25, 625) 
+
+    # Save canvas
+    c.save()
+
+    # Return the PDF file path
+    return pdf_path
+
+# Route to get the progress report
 @app.route('/get_progress_report/<access_code>', methods=['GET'])
 def get_progress_report(access_code):
-    students_grades = Enrol.query.with_entities(Enrol.participantID, Enrol.score).filter(Enrol.access_code == access_code).all()
+    # Retrieve information from the database (you'll need to adjust this query based on your database structure)
+    students_grades = db.session.query(Enrol.participantID, Enrol.score, Participant.fname, Participant.lname).join(Participant).filter(Enrol.access_code == access_code).all()
 
-    # Create a new PDF file
-    pdf_path = os.path.join(app.root_path, 'progress_report.pdf')  # Use app.root_path to get the root directory of your Flask app
-    c = canvas.Canvas(pdf_path)
-    y_position = 800
-
-    # Write the grades to the PDF
-    for student, grade in students_grades:
-        c.drawString(100, y_position, f"{student}: {grade}")
-        y_position -= 20  # Move the y position for the next line
-
-    c.save()
+    # Generate the progress report PDF
+    pdf_path = generate_progress_report(access_code, students_grades)
 
     # Return the PDF file
     try:
@@ -657,6 +715,18 @@ def submit_answers():
     if enrol:
         enrol.score += score
         db.session.commit()
+
+    # After updating the score, check and update the user level
+    total_score = enrol.score
+    participant = Participant.query.get(user)
+    if total_score >= 150:
+        participant.level = 'Advanced'
+    elif total_score >= 50:
+        participant.level = 'Intermediate'
+    else:
+        participant.level = 'Beginner'
+    
+    db.session.commit()
 
     feedback = provide_feedback(score, data.get('total_marks'))
 
