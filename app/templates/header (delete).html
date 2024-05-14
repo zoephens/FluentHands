@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<head>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/header.css') }}">
+</head>
+
+<body>
+  <!-- Main header -->
+  <div class="main-header">
+    <div class="header-content">
+      <div class="container2">
+        <div class="left">
+          <!-- Hamburger Icon -->
+          <div class="hamburger-menu" onclick="toggleSidebar()">
+            <div class="bar"></div>
+            <div class="bar"></div>
+            <div class="bar"></div>
+          </div>
+          <!-- Logo -->
+          <img src="../static/images/FluentHands-white-logo.png" alt="Logo" class="logo">
+        </div>
+
+        <div class="middle">
+          <!-- Access Code -->
+          <p>Access Code: <span id="access-code">{{ room_code }}</span><i class="fa fa-copy" onclick="copyAccessCode()" style="cursor: pointer; margin-left: 10px;"></i></p>
+        </div>
+        
+        <div class="right">
+          <!-- Greeting -->
+          <p>Hi, {{ fname }}</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Secondary header -->
+  <header class="secondary-header">
+    <div class="container">
+      <div class="left d-flex align-items-center">
+        <!-- Home Icon -->
+        <i class="fa fa-home" aria-hidden="true" style="margin-right: 5px"></i>
+        <!-- Home Text -->
+        <p class="m-0">Home</p>
+      </div>
+    </div>
+  </header>
+    
+  <!-- Sidebar -->
+  <aside class="sidebar">
+    <!-- Sidebar Header -->
+    <div class="sidebar-header d-flex align-items-center">
+      <!-- Sidebar Icon -->
+      <div class="text-center" style="flex: 0 0 auto; margin-right: 10px;">
+          <i class="fa-brands fa-windows" aria-hidden="true"></i>
+      </div>
+      <!-- Sidebar Text -->
+      <h5 class="m-0 align-self-center">Dashboard</h5>
+    </div>
+
+    <!-- Sidebar Content -->
+    <div class="sidebar-content">
+      <div class="sidebar-section">
+        <h5 style="color: #C3C4C7; font-size: 14px;">STUDENTS</h5>
+        {% if is_admin %}
+        <p><i class="fa fa-users" aria-hidden="true"></i><a href="#" style="color: #fff;">View Students</a></p>
+        {% else %}
+        <p><i class="fa fa-users" aria-hidden="true"></i><a href="#" style="color: #fff;">View Classmates</a></p>
+        {% endif %}
+        <p><i class="fa-solid fa-ranking-star" aria-hidden="true"></i><a href="{{ url_for('leaderboard', room_code=room_code) }}" style="color: #fff;">Leaderboard</a></p>
+      </div>
+
+      <br>
+
+      <div class="sidebar-section">
+        <h5 style="color: #C3C4C7; font-size: 14px;">LEARNING MATERIALS</h5>
+        {% if is_admin %}
+        <p><i class="fa fa-file" aria-hidden="true"></i></i><a href="#" style="color: #fff;">Lesson Plans</a></p>
+        {% else %}
+        <p><i class="fa fa-file" aria-hidden="true"></i></i><a href="#" style="color: #fff;">View Quizzes</a></p>
+        {% endif %}
+      </div>
+
+      <br>
+
+      {% if is_admin %}
+      <div class="sidebar-section">
+        <h5 style="color: #C3C4C7; font-size: 14px;">GRADES</h5>
+        <p><i class="fa fa-download" aria-hidden="true"></i><a href="#" id="progress-report-link" style="color: #fff;">Progress Report</a></p>
+      </div>
+      <br>
+      {% endif %}
+
+      <!-- Account section -->
+      <div class="sidebar-section">
+        <h5 style="color: #C3C4C7; font-size: 14px;">ACCOUNT</h5>
+        <p><i class="fa fa-cog" aria-hidden="true" style="margin-right: 5px; color: #fff;"></i><a href="#" style="color: #fff;" onclick="toggleDropdown(event)">Settings <i class="fa fa-caret-down" style="padding-left:6px" aria-hidden="true"></i></a></p>
+        <!-- Dropdown content -->
+        <div class="dropdown-content">
+          <!-- <p style="margin-left: 20px;"><i class="fa fa-trash" aria-hidden="true" style="margin-right: 5px; color: #D8584D;"></i><a href="#" style="color: #D8584D;">Delete Account</a></p> -->
+          <form id="delete-form" action="/delete_account" method="POST">
+            <button type="button" id="delete-btn" class="btn btn-unstyled p-0 m-0" style="background: none; border: none; color: inherit;">
+              <p style="margin-left: 20px; display: inline-block; cursor: pointer;">
+                <i class="fa fa-trash" aria-hidden="true" style="margin-right: 5px; color: #D8584D;"></i>
+                <span style="color: #D8584D; text-decoration: none;">Delete Account</span>
+              </p>
+            </button>
+          </form>        
+        </div>
+      </div>
+
+      <!-- Logout section -->
+      <div class="sidebar-section">
+        <p>
+          <i class="fa fa-sign-out" aria-hidden="true" style="margin-right: 5px; color: #fff;"></i>
+          <a href="/logout" style="color: #fff;">Logout</a>
+        </p>
+      </div>
+    </div>
+  </aside>
+
+  <!-- Content container -->
+  <div class="content-container">
+    <!-- Your dashboard and other content here -->
+    {% block dashboard_content %}
+      <!-- Placeholder if no dashboard content is provided -->
+    {% endblock %}
+  </div>
+</body>
+
+<script>
+  function copyAccessCode() {
+    var accessCode = document.getElementById('access-code').innerText;
+    navigator.clipboard.writeText(accessCode).then(function() {
+      var notification = document.createElement('div');
+      notification.className = 'notification';
+      notification.textContent = 'Access code copied!';
+      document.body.appendChild(notification);
+      setTimeout(function() {
+        notification.style.opacity = 0;
+        setTimeout(function() {
+          document.body.removeChild(notification);
+        }, 1000);
+      }, 2000); // Notification disappears after 2 seconds
+    }, function(err) {
+      console.error('Failed to copy access code: ', err);
+    });
+  }
+  
+  function toggleSidebar() {
+    console.log('clicked')
+    const sidebar = document.querySelector('.sidebar');
+    const secondaryHeader = document.querySelector('.secondary-header');
+    sidebar.classList.toggle('open');
+    secondaryHeader.classList.toggle('opened');
+  }
+
+  function toggleDropdown(event) {
+    event.preventDefault(); // Prevent default action of anchor tag
+    const dropdown = document.querySelector('.dropdown-content');
+    dropdown.classList.toggle('show');
+  }
+
+  document.addEventListener("DOMContentLoaded", function() {
+    toggleSidebar()
+    // Ensure the DOM is fully loaded before accessing elements
+    var progressReportLink = document.getElementById("progress-report-link"); // Correct the variable declaration and element access
+    if (progressReportLink) {
+        progressReportLink.addEventListener("click", function(event) {
+            event.preventDefault(); // Prevent the default anchor click behavior
+
+            var accessCode = "{{ room_code }}"; // Assuming room_code is correctly populated from the server-side template
+
+            // Create the URL with the access code
+            var url = "/get_progress_report/" + accessCode;
+
+            fetch(url)
+                .then(response => response.blob())
+                .then(blob => {
+                    const url = window.URL.createObjectURL(blob);
+                    const a = document.createElement("a");
+                    a.href = url;
+                    a.download = "progress_report.pdf"; // Make sure the server response is a PDF file
+                    document.body.appendChild(a);
+                    a.click(); // Simulate a click on the anchor element to start download
+                    window.URL.revokeObjectURL(url); // Clean up the URL object
+                    document.body.removeChild(a); // Remove the anchor element after downloading
+                })
+                .catch(error => console.error('Error downloading the file:', error)); // Add error handling for fetch
+        });
+    }
+  });
+</script>

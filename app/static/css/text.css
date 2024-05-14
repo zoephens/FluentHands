@@ -1,0 +1,733 @@
+/* Global styles */
+
+.lessondiv {
+    width: 100%; /* Make both sections fill the width */
+    background-color: #ffffff;
+    border: 1px solid #d1d1d1;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    border-radius: 8px;
+    margin-bottom: 20px; /* Space between sections */
+    padding: 20px;
+    padding-left: 50px;
+}
+
+.Studentscontainer th, td {
+    padding: 10px;
+    text-align: left;
+    border: 1px solid #aaaaaa;
+}
+
+.Studentscontainer h1, .lessondiv h1{
+    margin: 0;
+    color: #333;
+    font-size: 30px;
+    padding-bottom: 50px;
+}
+
+.Studentscontainer h2, .lessondiv h2{
+    font-size: 15px;
+    color: #9DA2AF;
+    
+}
+
+.Studentscontainer p{
+    margin: 0;
+    padding: 0 0 10px 0;
+    color: #354892;
+}
+
+.Studentscontainer h3 {
+    color: #657CD5;
+    font-size: large;
+    text-align: left;
+    margin-top: 0; 
+}
+
+.search-box input[type="search"] {
+    padding: 8px;
+    width: 300px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    
+}
+
+/* Table styles */
+.table {
+    background-color: #ffffff;
+    padding: 20px;
+    margin-top: 20px;
+    width: 100%; /* Ensure tables stretch across the container */
+    border-collapse: collapse;
+    margin-bottom: 20px;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+
+th {
+    background-color: #71788B;
+    color: #FFFFFF;
+}
+
+td {
+    background-color: #FFFFFF;
+    color: #354892;
+}
+
+button {
+    margin-top: 10px;
+    background-color: #657cd5;
+    color: #ffffff;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 15px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+    padding: 10px;
+    justify-content: center;
+    align-items: center;
+}
+
+
+button:hover {
+    background-color: #4c61b5;
+}
+
+/* Sidebar styles */
+.Studentscontainer {
+    background-color: #ffffff;
+    padding: 20px;
+    border: 1px solid #d1d1d1;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    border-radius: 8px;
+    padding-bottom: 50px;
+}
+
+.search-box {
+    float: right;
+    position: relative;
+    padding-right: 18px;
+}
+
+.material-header h2 {
+    font-size: 20px;
+    margin-top: 0;
+}
+
+.material-header p {
+    font-size: 14px;
+    color: #555;
+    margin-top: 5px;
+}
+
+.lesson-card:hover {
+    background-color: #f1f4ff;
+}
+
+.navigate {
+    background-color: #dddddd;
+}
+
+
+.lesson-card p {
+    color: #8A9DE6;
+    font-weight: bold;
+}
+
+.lessons-container {
+    overflow-x: auto;
+    white-space: nowrap;
+    padding-bottom: 10px; /* To ensure cards don't get cut off */
+    padding-right: 30px;
+}
+
+.lessons {
+    display: inline-flex;
+    gap: 20px;
+    display: flex;
+    justify-content: space-between;
+    /* padding-left: 20px; */
+}
+
+.lesson-card {
+    flex: 0 0 auto;
+    width: 200px; /* Adjust to your preference */
+    padding: 20px;
+    background-color: white;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    text-align: center;
+}
+
+.lesson-card.navigate h3 {
+    color: #007bff;
+    font-weight: bold;
+}
+
+.quiz-card p {
+    color: #8A9DE6;
+}
+
+/* Outer box around Font Awesome icon */
+.quiz-tick-box {
+    display: inline-block;
+    width: 35px; /* Adjust the width as needed */
+    height: 35px; /* Adjust the height as needed */
+    vertical-align: middle; /* Align with text */
+    margin-right: 10px; /* Space between box and text */
+    text-align: center; /* Center the icon horizontally */
+    line-height: 35px; /* Center the icon vertically */
+}
+
+/* Font Awesome tick icon */
+.quiz-tick-box .fa-sharp.fa-regular.fa-square-check {
+    font-size: 20px; /* Adjust as needed to fit within the box */
+    color: #2a5596; /* Icon color */
+    vertical-align: middle;
+}
+
+.quizdiv {
+    background-color: #ffffff;
+    padding: 20px;
+    margin-top: 20px;
+    border: 1px solid #d1d1d1;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.quizzes-container {
+    overflow-x: auto;
+    white-space: nowrap;
+    padding-bottom: 10px; /* To ensure cards don't get cut off */
+}
+
+.quizzes {
+    display: flex;
+    gap: 20px;
+    padding-left: 20px;
+    padding-block: 20px;
+}
+
+.quiz-card {
+    width: 100%;
+    background-color: #e6ebf1;
+    border: 1px solid #d1d1d1;
+    border-radius: 8px;
+    padding: 20px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1)
+}
+
+.quiz-card button {
+    margin-top: auto; /* Align button to the bottom within the container */
+    align-self: flex-end; /* Align button to the right */
+    background-color: #657cd5;
+    color: #ffffff;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+/* Outer container */
+.learning-materials-container {
+    background-color: #ffffff;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    margin-top: 20px;
+}
+
+/* Form layout */
+.lesson-form {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+
+/* Divider */
+hr {
+    border: none;
+    height: 1px;
+    background-color: #ccc;
+    margin: 10px 0;
+}
+
+/* Top row alignment */
+.lesson-top-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 15px;
+    align-items: center;
+}
+
+/* Custom Questions alignment */
+.custom-questions {
+    display: flex;
+    gap: 15px;
+    align-items: center;
+    margin-top: 1opx;
+}
+
+/* Sections within the form */
+.lesson-section {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+/* Input field styles */
+input[type="text"], input[type="date"], select {
+    padding: 8px;
+    border: 1px solid #535765; /* Blue border */
+    border-radius: 8px; /* Rounded corners */
+    background-color: #DCECFF; /* Light blue */
+    color: #4e5261;
+    outline: none;
+    width: 100%;
+}
+
+input[type="text"]::placeholder,
+input[type="date"]::placeholder {
+    color: black; /* Black placeholder text */
+}
+
+label {
+    margin-bottom: 4px;
+    color: #555865;
+}
+
+/* Button styles */
+button.add-btn, button.submit-btn {
+    background-color: #657cd5;
+    color: #ffffff;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+    align-self: flex-end;
+}
+
+button.add-btn:hover {
+    background-color: #4c61b5;
+}
+
+button.submit-btn {
+    background-color: #28a745;
+    padding: 10px;
+    justify-content: center;
+    align-items: center;
+    border-radius: 20px;
+    width: 130px;
+    height: 40px;
+    
+
+}
+
+
+/* Make the submit button centered */
+.center-submit {
+    align-self: center; /* Centered horizontally */
+    margin-top: 15px;
+    display: flex; /* Flex container */
+    justify-content: center; /* Center horizontally */
+    align-items: center; /* Center vertically */
+}
+
+
+button.submit-btn:hover {
+    background-color: #218838;
+}
+
+/* Align inputs horizontally like the provided image */
+.question-row {
+    display: flex;
+    gap: 20px; /* Space between questions */
+    flex-wrap: wrap;
+    margin-bottom: 15px;
+}
+
+/* Organize question container vertically */
+.question-container {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+
+
+.question-label {
+    width: 760px; /* Adjust width */
+}
+
+.answer-label {
+    width: 80px;
+}
+
+/* Make the submit button centered */
+.center-submit {
+    align-self: center; /* Centered horizontally */
+    margin-top: 15px;
+}
+
+/* Adjust color of photo input text */
+#photo {
+    color: white;
+
+}
+/* Custom Questions alignment */
+.custom-questions {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    margin-top: 10px; /* Add some spacing from previous element */
+}
+
+.custom-text {
+    font-size: 12px; /* Adjust to desired size */
+    color: #6c757d; /* Adjust to your preferred color */
+}
+
+/* Styling for the custom radio buttons */
+input[type="radio"] {
+    appearance: none; /* Removes the default radio button style */
+    -webkit-appearance: none; /* For compatibility with WebKit-based browsers */
+    width: 18px; /* Adjust size */
+    height: 18px; /* Adjust size */
+    border: 2px solid #657cd5; /* Border color and width */
+    border-radius: 50%; /* Makes it circular */
+    outline: none;
+    cursor: pointer;
+    background-color: white;
+    position: relative;
+    display: inline-block;
+    vertical-align: middle;
+}
+
+input[type="radio"]:checked {
+    background-color: #657cd5; /* Fill color when selected */
+    border: 2px solid #657cd5; /* Matches the fill color */
+    position: relative;
+}
+
+input[type="radio"]:checked::before {
+    content: "";
+    width: 8px; /* Adjust inner circle size */
+    height: 8px; /* Adjust inner circle size */
+    background-color: white; /* Inner circle color */
+    border-radius: 50%;
+    position: absolute;
+    top: 2px; /* Adjust positioning inside radio button */
+    left: 2px;
+}
+
+
+/* Adjust the shape and appearance of the cards */
+.centered-card-wrapper .card {
+    border-radius: 12px; /* Rounded corners */
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1); /* Soft shadow */
+    min-width: 300px; /* Minimum width to prevent cards from collapsing */
+    max-width: 250px; /* Adjust according to desired card width */
+    min-height: 120px; /* Consistent card height */
+    margin-bottom: 16px; /* Space between cards */
+    padding: px; /* Padding inside the card */
+    background-color: #fff; /* White background */
+    border-left: none; /* Removes the left border */
+    color: white;
+}
+
+/* Adjust border colors for each specific card type */
+.centered-card-wrapper .border-left-primary {
+    background-color: #55B27B; /* Example color */
+}
+
+.centered-card-wrapper .border-left-success {
+    background-color: #65A3D5; /* Example color */
+}
+
+.centered-card-wrapper .border-left-info {
+    background-color:  #D8584D; /* Example color */
+}
+
+/* Custom Sidebar Background */
+.custom-sidebar {
+    background-color: #363A44; /* Replace gradient with solid color */
+}
+
+/* Additional styles if needed */
+.custom-sidebar .nav-item {
+    margin-bottom: 10px; /* Adjust as necessary for spacing between items */
+}
+
+.custom-sidebar .nav-link {
+    color: #ffffff; /* Keep text color white */
+}
+
+
+.sidebar-heading{
+    color: white;
+}
+
+/* Override to remove the left border with higher specificity */
+.card.border-left-info,
+.card[class*='border-left-'] {
+    border-left: none !important; /* Remove left border and ensure with !important */
+}
+
+/* Container for the search input and icon */
+.input-icon-container {
+    position: relative; /* Position children relative to this container */
+    display: inline-block;
+    width: 100%; /* Adjust width as necessary */
+    border-radius: 25px; /* Adjust this value for more or less rounding */
+    overflow: hidden; /* Ensure the input stays within the rounded container */
+   /* Optional shadow for better visibility */
+}
+
+/* Position the search icon to the left */
+.search-icon {
+    position: absolute; /* Position relative to the input container */
+    left: 10px; /* Adjust distance to the left of the container */
+    top: 50%; /* Vertically align in the middle */
+    transform: translateY(-50%); /* Correct vertical alignment */
+    color: #888; /* Adjust color as needed */
+    pointer-events: none; /* Prevent icon from capturing mouse clicks */
+    font-size: 16px; /* Adjust size to fit your design */
+}
+
+/* Style for the search input */
+#studentSearch {
+    padding-left: 35px; /* Make space for the icon on the left */
+    padding-right: 10px; /* Add padding to the right for consistency */
+    width: 100%; /* Full width for the input */
+    box-sizing: border-box; /* Ensure padding doesn't exceed parent width */
+    border: line; /* Remove the default input border */
+    border-radius: 25px; /* Match the parent container */
+    outline: none; /* Remove the outline when focused */
+}
+
+.float-right {
+    float: right;
+}
+.align-right {
+    display: flex;
+    justify-content: flex-end; /* Aligns items to the right */
+}
+
+
+
+
+/* QUIZ SECTION*/
+
+
+
+/* Unified Learning Materials Section */
+.learning-materials-section {
+    background-color: #ffffff; /* Unified background */
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    text-align: left;
+    margin-top: 20px;
+    border: 1px solid #d1d1d1;
+    padding: 30px;
+}
+
+.learning-materials-section h2 {
+    padding-bottom: 20px;
+}
+
+.learning-materials-section p {
+    color: #9DA2AF;
+}
+
+/* Remove any outermost padding or borders on quizdiv */
+.quizdiv {
+    margin-top: 0;
+    padding: 0;
+    border: none;
+    box-shadow: none;
+}
+
+/* Quizzes Container */
+.quizzes-container {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+/* Individual Quiz Container */
+.quiz-container {
+    width: 100%;
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 20px;
+    background-color: #f8f9fc; /* Inner background */
+    border-radius: 10px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+/* Quiz Header */
+.quiz-header h2 {
+    font-size: 24px;
+    color: #4e73df;
+    display: flex;
+    align-items: center;
+}
+
+.quiz-header i {
+    margin-right: 8px;
+    font-size: 18px;
+}
+
+/* Quiz Content */
+.quiz-content h3 {
+    font-size: 18px;
+    color: #5a5c69;
+}
+
+.question-text {
+    background-color: #DCECFF;
+    border-radius: 5px;
+    padding: 10px;
+    color: #343a40;
+    margin-bottom: 20px;
+}
+
+/* Video Placeholder */
+.video-placeholder {
+    width: 100%;
+    height: 300px;
+    background-color: #343a40;
+    border-radius: 10px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    color: white;
+}
+
+.video-placeholder i {
+    font-size: 64px;
+    color: #6c757d;
+}
+
+/* Navigation Buttons */
+.navigation-buttons {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 20px;
+}
+
+.prev-button,
+.next-button {
+    background-color: #e74a3b;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    padding: 10px 20px;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.prev-button:hover {
+    background-color: #c0392b;
+}
+
+.next-button {
+    background-color: #6c757d;
+}
+
+.next-button:disabled {
+    cursor: not-allowed;
+    opacity: 0.5;
+}
+
+.next-button2 {
+    background-color: #55B27B;
+}
+/* Answer Input */
+.answer-input {
+    display: flex;
+    justify-content: center;
+    margin-top: 20px;
+}
+
+.answer-bar {
+    width: 70%;
+    padding: 12px 15px;
+    border-radius: 8px;
+    border: none;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+    background-color: #e0e6ef;
+    color: #343a40;
+    outline: 2px solid #4e73df; /* Adjust the outline color and width */
+    text-align: center;
+}
+
+.start-quiz-button{
+    float: right;
+}
+
+.start-quiz-button:hover{
+    background-color: #4c61b5;
+}
+
+/* Lesson Plan Page */
+.add-new-quiz {
+    color: #9DA2AF;
+    padding-bottom: 30px;
+}
+
+.lesson-top-row label,  .question-row label {
+    display: block; /* Labels appear above input/select */
+    font-size: 14px; /* Set font size to 14px */
+    color: #9DA2AF; /* Text color */
+}
+
+.lesson-top-row .form-control, .question-row .form-control {
+  width: 100%; /* Full width input/select */
+  padding: 8px; /* Adjust padding */
+  border: 1px solid #71788B; /* Outlined border */
+  border-radius: 5px; /* Rounded corners */
+  background-color: #DCECFF; /* Background color */
+  font-size: 14px; /* Font size */
+}
+
+.form-control {
+    -webkit-appearance: menulist-button;
+    appearance: menulist-button;
+}
+
+.learning-materials-container h2 {
+    color: #363A44;
+    margin-bottom: 10px; /* Add spacing below the heading */
+}
+
+/* Style for <h3> titles */
+.exist h3 {
+    font-size: 14px; /* Make the font size smaller */
+    text-align: center; /* Center align the text */
+    color: #657CD5;
+    font-weight: bold;
+    margin-bottom: 10px; /* Add spacing below the titles */
+}
+
+.hr-thick {
+    border-top: 1px solid #000;  /* Adjust '5px' to increase or decrease thickness */
+    border-bottom: none;
+}
+
+/* Style for the default "Browse" button */
+.lesson-section input[type="file"]::-webkit-file-upload-button {
+    background-color: #71788B; /* Button color */
+    color: #fff; /* Text color */
+    border: none; /* No border */
+    border-radius: 5px; /* Rounded corners */
+    padding: 8px 16px; /* Padding */
+    cursor: pointer; /* Cursor on hover */
+}

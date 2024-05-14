@@ -1,8 +1,384 @@
 {% extends "base.html" %}
 
-{% block main %}
-<h1 class="page-header">Dashboard</h1>
-{% include 'flash_messages.html' %}
+{% block css %} 
+<link rel="stylesheet" href="{{ url_for('static', filename='css/text.css') }}">
+{% endblock%}
 
-<p class="lead">Placeholder for home page coding</p>
+{% block dashboard_content %}
+
+<div class="container dashboard-content">
+    <!-- Centered wrapper for the 3 cards -->
+    <div class="row justify-content-around logistics" style="padding-top: 30px; padding-left: -20px">
+        
+        {% if is_admin %}
+        <!-- LESSONS ADMINISTERED (Teacher)-->
+        <div class="col-md-3 mb-4" style="padding-top: 0;">
+            <div class="card shadow py-2" style="background-color: #55B27B">
+                
+                <div class="card-body">
+                    <div class="text-white mb-1">LESSONS ADMINISTERED</div>
+                    <div class="count h5 mb-0 bold text-white">----</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- TOP PERFORMER -->
+        <div class="col-md-3 mb-4">
+            <div class="card shadow py-2" style="background-color: #65A3D5">
+
+                <div class="card-body">
+                    <div class="text-white mb-1">TOP PERFORMER</div>
+                    <div id="top_scorer" class="h5 mb-0 font-weight-bold text-white">----</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- QUESTIONS CONTRIBUTED -->
+        <div class="col-md-3 mb-4">
+            <div class="card shadow py-2" style="background-color: #D8584D">
+                <div class="card-body">
+                    <div class="text-white mb-1">QUESTIONS CONTRIBUTED</div>
+                    <div id="ques_count" class="h5 mb-0 font-weight-bold text-white">----</div>
+                </div>
+            </div>
+        </div>
+        {% else %}
+        <!-- Performances (Student)-->
+        <div class="col-md-3 mb-4">
+            <div class="card shadow py-2" style="background-color: #55B27B">
+                
+                <div class="card-body">
+                    <div class="text-white mb-1">PERFORMANCES %</div>
+                    <div id="participation" class="h5 mb-0 bold text-white">----</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- TOTAL POINTS -->
+        <div class="col-md-3 mb-4">
+            <div class="card shadow py-2" style="background-color: #65A3D5">
+
+                <div class="card-body">
+                    <div class="text-white mb-1">TOTAL POINTS</div>
+                    <div id="totalscore" class="h5 mb-0 font-weight-bold text-white">----</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- QUIZZES COMPLETED -->
+        <div class="col-md-3 mb-4">
+            <div class="card shadow py-2" style="background-color: #D8584D">
+                <div class="card-body">
+                    <div class="text-white mb-1">QUIZZES COMPLETED</div>
+                    <div class="count h5 mb-0 font-weight-bold text-white">----</div>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+
+    <!-- ----------------------------------- -->
+    {% if is_admin %}
+    <!-- Views For An Admin -->
+    <div class="Studentscontainer">
+        <div class="insidestudent">
+            <div class="Studentheader">
+                <h1>Participants</h1>
+                <div class="search-box">
+                    <div class="input-icon-container">
+                        <input type="search" id="studentSearch" placeholder="Search for Participant...">
+                        <i class="fa-solid fa-magnifying-glass search-icon"></i>
+                    </div>
+                </div>
+            </div>
+                
+            <section class="table" id="Leaderboard">
+                <h2>View Participants</h2>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Student ID</th>
+                            <th>First Name</th>
+                            <th>Last Name</th>
+                            <th>Email</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody id="studentTableBody">
+                    </tbody>
+                </table>
+                <button class="float-right">See More</button>
+            </section>
+            <br>
+            <section class="table">
+                <h2>Leaderboard</h2>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Rank</th>
+                            <th>Participant ID</th>
+                            <th>Total Points</th>
+                            <th>Participation (%)</th>
+                        </tr>
+                    </thead>
+                    <tbody id="leaderboardTableBody">
+                        <!-- Data rows will be added here -->
+                    </tbody>
+                </table>
+                <button class="float-right">See More</button>
+
+            </section>
+            <br>
+        </div>
+    </div>
+    <br>
+    <!-- Centered wrapper for Learning Materials -->
+    <div class="container-fluid lessondiv">
+        <div class="lessons-container">
+            <div class="thelessonbackground">
+                <h1>Learning Materials</h1>
+                <h2>Lesson Plans</h2>
+                {% for quiz in quizzes %}
+                    <div class="lessons">
+                        <div class="lesson-card" style="cursor: pointer" onclick="showQuestions()">
+                            <p style="margin-top: 20px">Lesson {{ quiz.quiz_id}}</p>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+            <br>
+        </div>
+
+        <div class="align-right">
+            <a href="#">
+                <button>Add New</button>
+            </a>
+        </div>
+    </div>
+
+    {% else %}
+    <!-- View for Students -->
+    <div class="Studentscontainer" id="Classroom">
+        <div class="insidestudent">
+            <div class="Studentheader">
+                <h1>Classroom</h1>
+                <div class="search-box"><input type="search" id="studentSearch" placeholder="Search Classmates..."> </div>
+            </div>
+            
+            <section class="table" id="Leaderboard">
+                <h2>View Classmates</h2>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>First Name</th>
+                            <th>Last Name</th>
+                        </tr>
+                    </thead>
+                    <tbody id="classmateTableBody">
+                        
+                    </tbody>
+                </table>
+                <a href="#" class="float-right">
+                    <button type="button" style="border-radius: 5px; padding: 10px 25px">See More</button>
+                </a>
+                
+            </section>
+            
+            <!-- Leaderboard -->
+            <section class="table">
+                <h2 >Leaderboard</h2>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Rank</th>
+                            <th>Name</th>
+                            <th>Total Points</th>
+                        </tr>
+                    </thead>
+                    <tbody id="LeaderboardStudentView">
+                        <!-- Data rows will be added here -->
+                    </tbody>
+                </table>
+                <a href="#" class="float-right">
+                    <button type="button" style="border-radius: 5px; padding: 10px 25px">See More</button>
+                </a>
+                
+            </section>
+        </div>
+    </div>
+    <br>
+    <!-- Centered wrapper for Learning Materials -->
+    <div class="container-fluid" style="padding: 0">
+        <div class="row">
+            <div class="col-xl-12 mb-4">
+                <div class="learning-materials-section">
+                    <h2>Learning Materials</h2>
+                    <p>View Quizzes</p>
+
+                    <div class="quizdiv">
+                        <!-- quiz container -->
+                        <div class="quizzes-container">
+                            {% for quiz in quizzes %}
+                                <div class="quiz-card mb-4">
+                                    <h3>
+                                        <div class="quiz-tick-box">
+                                            <i class="fa-regular fa-square-check"></i>
+                                            <!-- <i class="fa fa-square-check"></i> Update as necessary -->
+                                        </div>
+                                        Quiz {{quiz.quiz_id}} - {{ quiz.topic }} <!-- Assuming there is a title field -->
+                                    </h3>
+                                    <p>Total Marks: {{ quiz.total_marks }}</p>
+                                    <p>Difficulty: {{ quiz.level }}</p>
+                                    <p>Opens: {{ quiz.due_date.strftime('%B %d, %Y') }}</p>
+                                    <button class="start-quiz-button" onclick="redirectToQuiz('{{ quiz.quiz_id }}')">Start Quiz</button>
+                                </div>
+                            {% endfor %}
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+</div>
+
+<!-- End of Main Content -->
+
 {% endblock %}
+
+{% block js %} 
+<script>
+    function redirectToQuiz(quizId) {
+        // Optional: Insert any pre-navigation logic here, e.g., analytics tracking
+        console.log('Navigating to quiz with ID:', quizId);
+    
+        // Redirect to the quiz page
+        window.location.href = `/get_quiz/${quizId}`;
+    }    
+
+    $(document).ready(function() {
+        const roomcode = '{{ room_code }}';
+        var currentUserId = '{{ id_num }}';  
+        
+        // Gets all students in a course room
+        $.getJSON(`/get_students/${roomcode}`, function(students) {
+            var tableContent = '';
+            $.each(students, function(index, student) {
+                tableContent += `<tr>
+                    <td>${student.student_id}</td>
+                    <td>${student.first_name}</td>
+                    <td>${student.last_name}</td>
+                    <td>${student.email}</td>
+                    <td>${student.level}</td>
+                </tr>`;
+            });
+            $('#studentTableBody').html(tableContent);
+        });
+
+        // Gets classmates of a student in a course room
+        $.getJSON(`/get_students/${roomcode}`, function(students) {
+            var tableContent = '';
+
+            $.each(students, function(index, student) {
+                var highlightClass = '';
+
+                let id = student.student_id + ""
+                if (id === currentUserId) {
+                    highlightClass = 'highlight';  // Class to apply for highlighting
+                }
+                tableContent += `<tr class="${highlightClass}">
+                    <td>${student.first_name}</td>
+                    <td>${student.last_name}</td>
+                </tr>`;
+            });
+            $('#classmateTableBody').html(tableContent);
+        });
+        
+        // Get quiz count for current user
+        admin_quiz_count = 0;
+        $.getJSON(`/get_quiz_count/${currentUserId}`, function(response) {
+            $('.count').text(response.quiz_count);  // Updates all elements with class="count"
+            admin_quiz_count = response.quiz_count;
+        }).fail(function() {
+            console.error("Error fetching quiz count");
+            $('.count').text("Error");  // Updates all elements with class="count" on failure
+        });
+
+        // Get total questions contributed by a lecturer
+        var isAdmin = "{{ is_admin }}" === "True"
+        if (isAdmin) {
+            $.getJSON(`/get_ques_contributed/${currentUserId}`, function(response) {
+                if (response.total_contributed !== undefined) {
+                    $('#ques_count').text(response.total_contributed);
+                } else {
+                    console.error("Failed to fetch the contributed questions count.");
+                    $('#ques_count').text("Error fetching data");
+                }
+            }).fail(function(jqXHR, textStatus, errorThrown) {
+                console.error("Error: " + textStatus + ", " + errorThrown);
+                $('#ques_count').text("Error fetching data");
+            });
+        }
+
+        // Leaderboard View for Admin and Students
+        // Fetch leaderboard data
+        $.getJSON(`/leaderboard/${roomcode}`, function(data) {
+            data.forEach(function(item) {
+                // Fetch quiz count for each participant
+                $.getJSON(`/get_quiz_count/${item.participantID}`, function(quizData) {
+                    var participation = ((quizData.quiz_count / admin_quiz_count) * 100).toFixed(2);
+
+                    if (isAdmin) {
+                        // Admin view: Include Rank, Student ID, Total Points, and Participation
+                        var row = `<tr>
+                            <td>${item.rank}</td>
+                            <td>${item.participantID}</td>
+                            <td>${item.total_score}</td>
+                            <td>${participation}%</td>
+                        </tr>`;
+                        $('#leaderboardTableBody').append(row); // Append to the admin's table
+                    } else {
+                        // Student view: Include Rank, Name, and Total Points
+                        document.getElementById('participation').textContent = participation;
+                        document.getElementById('totalscore').textContent = item.total_score;
+
+                        var row = `<tr>
+                            <td>${item.rank}</td>
+                            <td>${item.fname} ${item.lname}</td>
+                            <td>${item.total_score}</td>
+                        </tr>`;
+                        $('#LeaderboardStudentView').append(row); // Append to the student's table
+                    }
+                });
+            });
+        });
+
+        // Get the top scorer
+        if (isAdmin) {
+            fetchTopScorer();
+        }
+
+        function fetchTopScorer() {
+            fetch(`/top_scorer/${roomcode}`)
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok');
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    if(data.error) {
+                        document.getElementById('top_scorer').textContent = 'No data available';
+                    } else {
+                        document.getElementById('top_scorer').textContent = data.name;
+                    }
+                })
+                .catch(error => {
+                    console.error('There was a problem with the fetch operation:', error);
+                    document.getElementById('top_scorer').textContent = 'None';
+                });
+            }
+    });
+</script>
+{% endblock%}

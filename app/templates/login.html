@@ -1,39 +1,110 @@
 {% extends 'base.html' %}
 
-{% block main %}
-<div class="main_div">
-
-    <div class="title">Login Form</div>
-    <div class="social_icons">
-        <a href="#"><i class="fab fa-facebook-f"></i> <span>Facebook</span></a>
-        <a href="#"><i class="fab fa-twitter"></i><span>Twitter</span></a>
-    </div>
-
-    <form class="form-login" method="post">
-        {{ form.csrf_token }}
-        <div class="input_box">
-            <input type="text" placeholder="Email or Phone" required>
-            <div class="icon"><i class="fas fa-user"></i></div>
-        </div>
-        <div class="input_box">
-            <input type="password" placeholder="Password" required>
-            <div class="icon"><i class="fas fa-lock"></i></div>
-        </div>
-        <div class="option_div">
-            <div class="check_box">
-                <input type="checkbox">
-                <span>Remember me</span>
-            </div>
-            <div class="forget_div">
-                <a href="#">Forgot password?</a>
-            </div>
-        </div>
-        <div class="input_box button">
-            <input type="submit" value="Login">
-        </div>
-        <div class="sign_up">
-            Not a member? <a href="#">Signup now</a>
-        </div>
-    </form>
-</div>
+{% block css %}
+<!-- <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}"> -->
+<link rel="stylesheet" href="{{ url_for('static', filename='css/login.css') }}">
 {% endblock %}
+
+{% block main %}
+<div class="container-fluid h-100">
+    <div class="row h-100">
+        <!-- Left Panel for Login -->
+        <div class="col-md-6 login-panel">
+            <img src="{{ url_for('static', filename='images/shapes-right.png') }}" class="shape shapes-right">
+            <div class="login-content">
+                <img src="{{ url_for('static', filename='images/FluentHands-white-logo.png') }}">
+                <h1>Login to Account</h1>
+                <p>Login using your socials</p>
+                <div class="social-login">
+                    <ul class="socials">
+                        <li><a href="#"><i class="display-flex-center fa-brands fa-google"></i></a></li>
+                        <li><a href="#"><i class="display-flex-center fa-brands fa-facebook-f"></i></a></li>
+                    </ul>
+                </div>
+
+                <div class="divider">
+                    <span>or</span>
+                </div>                
+
+                <form method="POST" class="form-login">
+                    {{ form.csrf_token }}
+                    <div class="form-group">
+                        <div class="position-relative">
+                            <i class="fa-solid fa-envelope icon-inside-input"></i>
+                            {{ form.email(class='form-control pl-3', id="email", style="padding-left: 45px", placeholder="Your Email", autocomplete="email") }}
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <div class="position-relative">
+                            <i class="fa-solid fa-lock icon-inside-input"></i>
+                            {{ form.password(class='form-control pl-3', id="password", style="padding-left: 45px", placeholder="Password", autocomplete="off") }}
+                        </div>
+                    </div>
+
+                    <button type="submit" class="login-btn ripple-effects">Login</button>
+                </form>
+            </div>
+            <img src="{{ url_for('static', filename='images/shapes-left.png') }}" class="shape shapes-left">
+        </div>
+
+
+        <!-- Right Panel for Signup -->
+        <div class="col-md-6 signup-panel">
+            <div class="signup-content">
+                <h1>New Here?</h1>
+                <p>Sign Up to Test How Fluent Your Hands Are!</p>
+                <a href="{{ url_for('register') }}" type="submit" class="signup-btn ripple-effects">Sign Up</a>
+                <div class="image-container">
+                    <img src="{{ url_for('static', filename='images/LoginPersons.png') }}" alt="Signup Image" class="img-fluid">
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<!-- p5.js Library -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.4.0/p5.js"></script>
+{% endblock %}
+
+{% block js %} 
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        var buttons = document.querySelectorAll('.ripple-effects');
+    
+        buttons.forEach(function(button) {
+            button.addEventListener('mousedown', function(e) {
+                console.log("Button pressed.");
+                var circle = document.createElement('div');
+                circle.className = 'cercle';
+                this.appendChild(circle);
+    
+                var x = e.pageX - this.offsetLeft;
+                var y = e.pageY - this.offsetTop;
+    
+                circle.style.left = x + "px";
+                circle.style.top = y + "px";
+                circle.className += " anim";
+    
+                setTimeout(function() {
+                    circle.remove();
+                }, 1000);
+            });
+        });
+    });
+
+    document.addEventListener('DOMContentLoaded', function() {
+        var img = document.querySelector('.image-container img');
+        img.classList.add('loaded');
+    });
+
+    function windowResized() {
+        const loginPanel = document.querySelector('.login-panel');
+        const rect = loginPanel.getBoundingClientRect();
+        resizeCanvas(rect.width, rect.height);
+        p5Canvas.position(rect.left + window.pageXOffset, rect.top + window.pageYOffset); // Adjust position on resize
+    }
+</script>
+{% endblock%}
+
