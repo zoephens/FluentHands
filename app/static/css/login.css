@@ -1,0 +1,387 @@
+.login-panel, .signup-panel {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.login-content {
+    text-align: center;
+    width: 100%;
+}
+
+.login-content h1 {
+    color: white;
+    font-weight: bold;
+    padding-bottom: 0;
+}
+
+.login-content p{
+    color: white;
+    font-size: 20px;
+}
+/* -------------------------------- */
+
+/* Specific styles for login and signup panels */
+.login-panel {
+    background: linear-gradient(135deg, #657CD5, #AACCFF, #657CD5, #C1D3FE);
+    background-size: 300% 300%;
+    height: 100vh;
+    width: 50%;
+    flex: 0 0 60%;
+    padding: 150px;
+    animation: diagonalDrift 30s linear infinite;
+}
+
+@keyframes diagonalDrift {
+    0%, 100% {
+        background-position: 100% 0%;
+    }
+    50% {
+        background-position: 0% 100%;
+    }
+}
+
+.form-login .form-group {
+    margin-bottom: 15px;
+}
+
+.image-container {
+    margin-top: 20px; /* Spacing from the text above */
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .login-panel, .signup-panel {
+        flex: 1 0 100%;
+    }
+}
+/* ------------------------------------------------ */
+
+/* Style for form */
+.position-relative {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+.icon-inside-input {
+    position: absolute;
+    left: 15px; /* Adjust based on padding needs */
+    z-index: 10;
+    color: #aaa; /* Light grey color for the icon, change as needed */
+    top: 50%; /* Center vertically */
+    transform: translateY(-50%); /* Ensure it's perfectly centered */
+}
+
+.form-control {
+    padding-left: 35px; /* Adjust so the text doesn't overlap the icon */
+    height: 50px; /* Smaller height */
+    margin-bottom: 5px;;
+    border-radius: 20px; /* More rounded corners */
+    font-size: 18px; /* Smaller font size if needed */
+    position: relative;
+    margin-top: 7px;
+}
+
+/* Button Animation */
+.login-btn, .signup-btn {
+    position: relative;
+    overflow: hidden;
+    font-size: 20px;
+    border: none;
+    width: 250px;
+    text-decoration: none; /* Removes underline */
+    padding: 10px 20px;
+    height: 50px;
+    border-radius: 20px;
+    background-color: #657CD5;
+    color: white;
+    margin-top: 10px;
+    transition: background-color 0.3s ease, transform 0.3s ease; /* Smooth transitions for background and transform */
+    cursor: pointer; /* Cursor changes to a pointer to indicate it's clickable */
+}
+
+.login-btn:hover, .signup-btn:hover {
+    background-color: #5a6ebe;
+    color: white;
+}
+
+.login-btn:active, .signup-btn:active {
+    transform: scale(0.99); /* Button compresses when clicked */
+    background-color: #4e61b6; /* Slightly darker shade when clicked */
+}
+
+.cercle {
+    width: 0px;
+    height: 0px;
+    position: absolute;
+    background: black;
+    border-radius: 50%;
+}
+
+.anim {
+    opacity: 0.3;
+    animation: touch 0.8s ease-out;
+}
+
+@keyframes touch {
+    40% {
+        opacity: 0.2;
+    }
+    100% { 
+        width: 800px;
+        height: 800px;
+        opacity: 0;
+        margin: -400px;
+    }
+}
+/* End of Button Animation */
+/* ------------------------------------------------ */
+
+/* Logo Image and Divider*/
+.login-content img {
+    margin-top: -100px;
+    margin-bottom: -40px;
+    width: 200px;
+    height: auto;
+}
+
+.divider {
+    display: flex;
+    align-items: center;
+    text-align: center;
+    color: #ffffff; /* Change the color as needed */
+    font-weight: bold;
+    margin: 15px 0; /* Adds vertical spacing */
+}
+
+.divider::before,
+.divider::after {
+    content: '';
+    flex: 1;
+    background: #ffffff; /* Change the color as needed */
+    height: .5px;
+    margin: 0 10px; /* Space between the text and the lines */
+}
+
+.login-panel {
+    z-index: 2;
+    position: relative; /* Needed to position the images absolutely within this container */
+}
+
+.shape {
+    width: 300px;
+    height: auto;
+}
+
+.shapes-right {
+    position: absolute;
+    top: 0; /* Aligns to the top of the container */
+    right: 0; /* Aligns to the right of the container */
+    z-index: 1; /* Ensures it doesn't overlap content inappropriately */
+}
+
+.shapes-left {
+    position: absolute;
+    bottom: 0; /* Aligns to the bottom of the container */
+    left: 0; /* Aligns to the left of the container */
+    z-index: 1; /* Ensures it doesn't overlap content inappropriately */
+}
+
+.login-content {
+    position: relative; /* Makes sure the content is on top of the images */
+    z-index: 2; /* Higher than shapes so it covers any part of the images that overlaps */
+}
+
+@keyframes float {
+    0%, 100% {
+        transform: translateY(0);
+    }
+    50% {
+        transform: translateY(-15px);
+    }
+}
+
+.shapes-right, .shapes-left {
+    animation: float 6s ease-in-out infinite;
+}
+
+/* ------------------------------------------------ */
+
+/* Social Links */
+.social-login .socials {
+    list-style: none; /* Removes bullet points from the list */
+    padding: 0; /* Removes padding */
+    margin: 0; /* Removes margin around the ul element */
+    display: flex; /* Makes the list items align horizontally */
+    justify-content: center; /* Centers the list items horizontally in the container */
+    align-items: center; /* Centers the list items vertically */
+}
+
+.social-login .socials li {
+    margin: 5px 10px; /* Adds spacing between the icons */
+}
+
+.socials li:last-child {
+    margin-right: 0px;
+}
+
+.social-login .socials a {
+    text-decoration: none; /* Removes underline from links */
+    color: white; /* Sets the icon color to white */
+    display: flex; /* Ensures the icons are centered */
+    align-items: center; /* Centers the icon vertically within the link */
+    justify-content: center; /* Centers the icon horizontally within the link */
+    width: 50px; /* Width of the circle */
+    height: 50px; /* Height of the circle */
+}
+
+.social-login .socials i {
+    border-radius: 50%;
+    width: 100%;
+    height: 100%; 
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.socials li a i {
+    width: 40px;
+    height: 40px;
+    color: #fff;
+    font-size: 14px;
+    border-radius: 5px;
+    -moz-border-radius: 5px;
+    -webkit-border-radius: 5px;
+    -o-border-radius: 5px;
+    -ms-border-radius: 5px;
+    transform: translateZ(0);
+    -moz-transform: translateZ(0);
+    -webkit-transform: translateZ(0);
+    -o-transform: translateZ(0);
+    -ms-transform: translateZ(0);
+    -webkit-transition-duration: 0.3s;
+    transition-duration: 0.3s;
+    -webkit-transition-property: transform;
+    transition-property: transform;
+    -webkit-transition-timing-function: ease-out;
+    transition-timing-function: ease-out;
+}
+
+.socials li:hover a i {
+    -webkit-transform: scale(1.1) translateZ(0);
+    transform: scale(1.1) translateZ(0);
+}
+
+.fa-facebook-f {
+    background: #3b5998;
+}
+
+.fa-google {
+    background: #e72734;
+}
+/* ------------------------------------------- */
+
+/* Right Panel */
+.signup-panel {
+    background-color: #ffffff; /* Assuming a white background for the right panel */
+    color: #333; /* Dark text color for readability */
+    padding: 40px; /* Padding for spacing inside the panel */
+    flex-direction: column;
+    height: 100vh; /* Ensure the panel takes full height of the viewport */
+    position: relative; /* Set relative positioning for absolute children */
+    flex: 0 0 40%;
+}
+
+.signup-content {
+    width: 100%; /* Ensures the content container fills the panel */
+    text-align: center; /* Center text alignment for all text within */
+    display: flex;
+    flex-direction: column;
+    align-items: center; /* Ensures everything in the signup content is centered horizontally */
+    flex-grow: 1;
+}
+
+.signup-content h1 {
+    padding-top: 30px;
+    color: #5464a7; /* Black color for the header */
+    font-weight: bold;
+    margin-bottom: 0; /* Spacing after the header */
+}
+
+.signup-content p {
+    font-size: 24px; /* Proper readable font size for the paragraph */
+    padding: 0 25%;
+    margin-bottom: 20px; /* Spacing before the sign-up button */
+    text-align: center; /* Center-align the text */
+}
+
+.signup-btn {
+    margin-top: 0;
+}
+
+.image-container {
+    margin-top: auto; /* Pushes the container to the bottom if there's space available */
+    width: 100%; /* Full width of the container */
+    display: flex;
+    justify-content: center; /* Center the image within its container */
+    align-items: flex-end; /* Aligns the image to the bottom of the container */
+    position: absolute; /* Ensures it sticks to the bottom */
+    bottom: 0; /* Aligns to the bottom of the parent container */
+    z-index: 1; /* Ensures it doesn't overlap content inappropriately */
+}
+
+.image-container img {
+    max-width: 100%; /* Ensuring image is responsive and fits container */
+    height: auto; /* Maintain aspect ratio */
+    opacity: 0; /* Start fully transparent */
+    transition: opacity 2s ease-in-out; /* Smooth transition for the opacity */
+}
+
+.image-container img.loaded {
+    opacity: 1; /* Fully visible */
+}
+
+/* Radio Button Styles */
+.radio-inline {
+    display: inline-block;
+    margin-left: 40px; 
+}
+
+.radio-inline:first-child {
+    margin-left: 0; 
+}
+
+
+.radio-inline .form-check-input {
+    margin-top: 3px; 
+}
+
+/* Hide the default radio button */
+.form-check-input {
+    appearance: none;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    background-color: #fff; /* Background color for the custom radio button */
+    border: 2px solid #ccc; /* Border color */
+    padding: 5px; /* Size of the button */
+    border-radius: 50%; /* Circular border */
+    display: inline-block;
+    position: relative;
+}
+
+.form-check-input:hover {
+    border-color: #888; /* Darker border on hover */
+}
+
+/* Style for when the radio button is checked */
+.form-check-input:checked {
+    background-color: #D8584D; /* Change background color when checked */
+    border-color: #D8584D; /* Optional: change border color if needed */
+}
+
+/* Ensuring the label is clickable and changes the state of the invisible radio */
+.form-check-label {
+    margin-left: 5px;
+    cursor: pointer;
+}

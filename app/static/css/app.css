@@ -1,5 +1,5 @@
-body {
-    padding-top: 5rem;
+main {
+    position: relative;
 }
 
 h1{
@@ -14,4 +14,14 @@ h4{
 
 form {
     width: 100%;
+}
+
+.flash-messages {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 1000; /* Ensures it stays on top of other content */
+    text-align: center;
+    padding: 10px 0;
 }

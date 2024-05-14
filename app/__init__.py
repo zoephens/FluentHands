@@ -5,6 +5,8 @@ from .config import Config
 
 from flask_migrate import Migrate
 
+# from .camera import generate_frames
+
 app = Flask(__name__)
 app.config.from_object(Config)
 
