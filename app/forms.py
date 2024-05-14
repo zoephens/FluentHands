@@ -45,5 +45,5 @@ class LessonPlan(FlaskForm):
     num_text_questions = IntegerField('Number of Text Questions')
     num_image_questions = IntegerField('Number of Image Questions')
 
-    text_questions = FieldList(FormField(TextQuestionForm), min_entries=3)
-    image_questions = FieldList(FormField(ImageQuestionForm), min_entries=2)
+    text_questions = FieldList(FormField(TextQuestionForm), min_entries=0)
+    image_questions = FieldList(FormField(ImageQuestionForm), min_entries=0)
