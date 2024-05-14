@@ -6,6 +6,14 @@ from werkzeug.security import check_password_hash, generate_password_hash
 from werkzeug.utils import secure_filename
 
 from reportlab.pdfgen import canvas
+from reportlab.lib.pagesizes import letter
+from reportlab.lib.utils import ImageReader
+from PIL import Image
+import os
+from flask import send_file
+from io import BytesIO
+
+
 from sqlalchemy.orm import joinedload
 from sqlalchemy.sql import insert
 from sqlalchemy import func
@@ -244,17 +252,34 @@ def leaderboard(room_code):
 
     return jsonify(formatted_leaderboard_data)
 
+
 # Try to make the progress report pretty
 @app.route('/get_progress_report/<access_code>', methods=['GET'])
 def get_progress_report(access_code):
     students_grades = Enrol.query.with_entities(Enrol.participantID, Enrol.score).filter(Enrol.access_code == access_code).all()
 
     # Create a new PDF file
-    pdf_path = os.path.join(app.root_path, 'progress_report.pdf')  # Use app.root_path to get the root directory of your Flask app
-    c = canvas.Canvas(pdf_path)
-    y_position = 800
+    pdf_path = os.path.join(app.root_path, 'progress_report.pdf')  
+    c = canvas.Canvas(pdf_path, pagesize=letter)  # Set page size to letter (8.5x11 inches)
+
+    # Read the image using PIL directly
+    background_path = "app/pr-1.png"  # Path to your background template image
+    try:
+        img = Image.open(background_path)
+    except Exception as e:
+        print("Error opening image:", e)
+        return "Error opening image", 500
+
+    # Convert the PIL Image to a BytesIO object
+    img_bytes_io = BytesIO()
+    img.save(img_bytes_io, format='PNG')
+    img_bytes_io.seek(0)  # Reset the pointer to the beginning of the BytesIO object
+
+    # Draw the image onto the canvas
+    c.drawImage(ImageReader(img_bytes_io), 0, 0, width=letter[0], height=letter[1], preserveAspectRatio=True)
 
     # Write the grades to the PDF
+    y_position = 750  # Adjust y position based on template
     for student, grade in students_grades:
         c.drawString(100, y_position, f"{student}: {grade}")
         y_position -= 20  # Move the y position for the next line
