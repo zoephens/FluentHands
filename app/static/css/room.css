@@ -1,12 +1,27 @@
 @import url('https://fonts.googleapis.com/css?family=Montserrat:400,800');
 
-body, html {
+/* body, html {
     height: 100%;
     margin: 0;
     font-family: 'Avenir', sans-serif;
     background: url('../images/background.png') no-repeat center center fixed; 
     background-size: cover;
+} */
+
+body, html {
+    height: 100%;
+    margin: 0;
+    font-family: 'Avenir', sans-serif;
+    background: url('../images/background.png') no-repeat center center fixed;
+    background-size: cover;
+    animation: slide 10s linear infinite;
 }
+
+@keyframes slide {
+    from { background-position: 0 0; }
+    to { background-position: 200% 0; }
+}
+
 
 .background-container {
     display: flex;

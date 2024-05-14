@@ -99,56 +99,6 @@
         img.classList.add('loaded');
     });
 
-    // Particles
-    let p5Canvas;
-    let particles = [];  // Declare this outside setup to have broader scope
-
-    class Particle {
-        constructor() {
-            this.x = mouseX;
-            this.y = mouseY;
-            this.size = random(5, 15);
-            this.velocityX = random(-2, 2);
-            this.velocityY = random(-1, 1.5);
-        }
-
-        update() {
-            this.x += this.velocityX;
-            this.y += this.velocityY;
-        }
-
-        display() {
-            fill(255, 255, 255, 150);
-            noStroke();
-            circle(this.x, this.y, this.size);
-        }
-    }
-
-    function setup() {
-        const loginPanel = document.querySelector('.login-panel');
-        const rect = loginPanel.getBoundingClientRect();
-
-        // Create the canvas and save the p5.Renderer object
-        p5Canvas = createCanvas(rect.width, rect.height);
-        p5Canvas.position(rect.left + window.pageXOffset, rect.top + window.pageYOffset); // Correctly use position()
-        background(0);
-    }
-
-    function draw() {
-        background(0, 20); // Semi-transparent background to see trail effect
-        if (particles.length < 50) { // Limit the number of particles to optimize performance
-            particles.push(new Particle());
-        }
-
-        particles.forEach((p, index) => {
-            p.update();
-            p.display();
-            if (p.x < 0 || p.x > width || p.y < 0 || p.y > height) {
-                particles.splice(index, 1);  // Remove the particle if it moves out of view
-            }
-        });
-    }
-
     function windowResized() {
         const loginPanel = document.querySelector('.login-panel');
         const rect = loginPanel.getBoundingClientRect();

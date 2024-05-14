@@ -86,7 +86,7 @@
                 <h1>Participants</h1>
                 <div class="search-box">
                     <div class="input-icon-container">
-                        <input type="search" id="studentSearch" placeholder="">
+                        <input type="search" id="studentSearch" placeholder="Search for Participant...">
                         <i class="fa-solid fa-magnifying-glass search-icon"></i>
                     </div>
                 </div>
@@ -138,23 +138,13 @@
             <div class="thelessonbackground">
                 <h1>Learning Materials</h1>
                 <h2>Lesson Plans</h2>
-                <div class="lessons">
-                    <div class="lesson-card">
-                        <p>Lesson --</p>
+                {% for quiz in quizzes %}
+                    <div class="lessons">
+                        <div class="lesson-card" style="cursor: pointer" onclick="showQuestions()">
+                            <p style="margin-top: 20px">Lesson {{ quiz.quiz_id}}</p>
+                        </div>
                     </div>
-                    <div class="lesson-card">
-                        <p>Lesson --</p>
-                    </div>
-                    <div class="lesson-card">
-                        <p>Lesson --</p>
-                    </div>
-                    <div class="lesson-card">
-                        <p>Lesson --</p>
-                    </div>
-                    <div class="lesson-card">
-                        <p>Lesson-- </p>
-                    </div>
-                </div>
+                {% endfor %}
             </div>
             <br>
         </div>
@@ -189,7 +179,7 @@
                     </tbody>
                 </table>
                 <a href="#" class="float-right">
-                    <button type="button">See More</button>
+                    <button type="button" style="border-radius: 5px; padding: 10px 25px">See More</button>
                 </a>
                 
             </section>
@@ -210,7 +200,7 @@
                     </tbody>
                 </table>
                 <a href="#" class="float-right">
-                    <button type="button">See More</button>
+                    <button type="button" style="border-radius: 5px; padding: 10px 25px">See More</button>
                 </a>
                 
             </section>
@@ -226,51 +216,47 @@
                     <p>View Quizzes</p>
 
                     <div class="quizdiv">
+                        <!-- quiz container -->
                         <div class="quizzes-container">
-
-                            <!-- Quiz 1 -->
-                            <div class="quiz-card mb-4">
-                                <h3>
-                                    <div class="quiz-tick-box">
-                                        <i class="fa-sharp fa-regular fa-square-check"></i>
-                                    </div>
-                                    Quiz 1 - JSL Alphabet
-                                </h3>
-                                <p>Total Marks: 50</p>
-                                <p>Difficulty: Intermediate</p>
-                                <p>Opens: April 6, 2024</p>
-                                <button onclick="location.href='quiz.html'" class="start-quiz-button">Start Quiz</button>
-                            </div>
-
-                            <!-- Quiz 2 -->
-                            <div class="quiz-card mb-4">
-                                <h3>
-                                    <div class="quiz-tick-box">
-                                        <i class="fa-sharp fa-regular fa-square-check"></i>
-                                    </div>
-                                    Quiz 2 - JSL Alphabet
-                                </h3>
-                                <p>Total Marks: 30</p>
-                                <p>Difficulty: Easy</p>
-                                <p>Opens: April 8, 2024</p>
-                                <button onclick="location.href='quiz.html'" class="start-quiz-button">Start Quiz</button>
-                            </div>
-
+                            {% for quiz in quizzes %}
+                                <div class="quiz-card mb-4">
+                                    <h3>
+                                        <div class="quiz-tick-box">
+                                            <i class="fa-regular fa-square-check"></i>
+                                            <!-- <i class="fa fa-square-check"></i> Update as necessary -->
+                                        </div>
+                                        Quiz {{quiz.quiz_id}} - {{ quiz.topic }} <!-- Assuming there is a title field -->
+                                    </h3>
+                                    <p>Total Marks: {{ quiz.total_marks }}</p>
+                                    <p>Difficulty: {{ quiz.level }}</p>
+                                    <p>Opens: {{ quiz.due_date.strftime('%B %d, %Y') }}</p>
+                                    <button class="start-quiz-button" onclick="redirectToQuiz('{{ quiz.quiz_id }}')">Start Quiz</button>
+                                </div>
+                            {% endfor %}
                         </div>
+
                     </div>
                 </div>
             </div>
         </div>
     </div>
     {% endif %}
-    <!-- ----------------------------------- -->
 </div>
+
 <!-- End of Main Content -->
 
 {% endblock %}
 
 {% block js %} 
 <script>
+    function redirectToQuiz(quizId) {
+        // Optional: Insert any pre-navigation logic here, e.g., analytics tracking
+        console.log('Navigating to quiz with ID:', quizId);
+    
+        // Redirect to the quiz page
+        window.location.href = `/get_quiz/${quizId}`;
+    }    
+
     $(document).ready(function() {
         const roomcode = '{{ room_code }}';
         var currentUserId = '{{ id_num }}';  
@@ -390,7 +376,7 @@
                 })
                 .catch(error => {
                     console.error('There was a problem with the fetch operation:', error);
-                    document.getElementById('top_scorer').textContent = 'Failed to load data';
+                    document.getElementById('top_scorer').textContent = 'None';
                 });
             }
     });

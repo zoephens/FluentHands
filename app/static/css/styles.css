@@ -1,0 +1,649 @@
+body {
+  margin: 0;
+  font-family: 'Avenir', sans-serif;
+  background-color: #DCECFF;
+}
+
+.main-header {
+  position: relative;
+  z-index: 2;
+}
+
+.header-content {
+  background: linear-gradient(to right, #657CD5, #AACCFF);
+  color: #fff;
+  padding: 10px 0px;
+  font-weight: bold;
+  font-size: larger;
+  height: 50px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  box-shadow: 0px 5px 15px rgba(0, 0, 0, 0.3);
+}
+
+.container {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  max-width: 96.5vw;
+  width: 100%;
+}
+
+.logo {
+  width: 125px;
+}
+
+.left,
+.middle,
+.right {
+  flex: 1;
+  text-align: center;
+}
+
+.left {
+  display: flex;
+  align-items: center;
+}
+
+.hamburger-menu {
+  display: inline-block;
+  cursor: pointer;
+  margin-right: 20px;
+}
+
+.bar {
+  width: 25px;
+  height: 3px;
+  background-color: #fff;
+  margin: 5px 0;
+}
+
+.middle {
+  text-align: center;
+}
+
+.right {
+  text-align: right;
+}
+
+.notification {
+  position: fixed;
+  top: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  background-color: rgba(1, 0, 12, 0.8);
+  color: #fff;
+  padding: 10px 20px;
+  border-radius: 5px;
+  opacity: 1;
+  transition: opacity 1s;
+  z-index: 999;
+}
+
+/* Secondary Header */
+.secondary-header {
+  background: linear-gradient(to right, #657CD5, #AACCFF);
+  color: #fff;
+  padding: 10px 20px;
+  font-weight: bold;
+  height: 30px;
+  display: flex;
+  align-items: center;
+  z-index: 1; /* Ensure it's behind the main header */
+  transition: margin-left 0.3s ease; /* Add transition for left margin */
+}
+
+.secondary-header .container {
+  max-width: 90vw;
+  width: 100%;
+  margin-left: 0; /* Initial margin */
+}
+
+.secondary-header.opened {
+  margin-left: 250px; /* Adjust to the width of the sidebar */
+}
+
+/* Sidebar */
+.sidebar {
+  position: absolute;
+  top: 70px; /* Adjust to the height of the main header */
+  left: -250px; /* Initially hide the sidebar */
+  width: 250px;
+  height: 100vh; /* Extend to the entire height of the viewport */  background-color: #363A44;
+  transition: left 0.3s ease;
+  z-index: 1; /* Ensure sidebar is behind the main content */
+}
+
+.sidebar.open {
+  left: 0;
+}
+
+.sidebar-header {
+  position: relative; /* Ensure proper positioning */
+  background-color: #4D5260;
+  color: #fff;
+  padding: 10px 20px; /* Adjust padding as needed */
+  font-weight: bold;
+  height: 30px; /* Same height as the secondary header */
+  display: flex;
+  align-items: center;
+  z-index: 2; /* Ensure it's above the sidebar content */
+}
+
+.sidebar-header i {
+  margin-right: 5px; /* Adjust margin as needed */
+}
+
+
+/* --------------------------- EXISTING BANK ------------------------------*/
+* Table styles */
+.table {
+    background-color: #ffffff;
+    padding: 20px;
+    margin-top: 20px;
+    width: 100%; /* Ensure tables stretch across the container */
+    border-collapse: collapse;
+    margin-bottom: 20px;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+
+    
+}
+
+
+th {
+    background-color: #71788B;
+    color: #FFFFFF;
+}
+
+td {
+    background-color: #FFFFFF;
+    color: #354892;
+}
+
+
+/*-------------------------CONTAINER---------------------------*/
+
+/* Adjust the styles for the content container */
+.content-container {
+  margin: 20px; /* Equal space around the container */
+  padding: 50px; /* Reduce padding */
+  background-color: #fff;
+  transition: margin-left 0.3s ease; /* Add transition for left margin */
+  margin: 20px auto; /* Center the container */
+}
+
+/* Animation for container movement */
+.container-animation {
+  margin-left: 250px; /* Adjust as needed for your animation */
+}
+
+/* Adjust container size when sidebar is opened */
+.sidebar.open + .content-container {
+  max-width: calc(90% - 250px); /* Reduce width by sidebar width when opened */
+  margin-left: 270px; /* Add extra margin to compensate for sidebar */
+}
+
+
+.learning-materials-container h2 {
+  color: #363A44;
+  margin-bottom: 10px; /* Add spacing below the heading */
+}
+
+.add-new-quiz {
+  color: #9DA2AF;
+}
+
+/* Flex container for horizontal alignment */
+.lesson-top-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+}
+
+/* Individual items */
+.lesson-top-row .top-item {
+  flex: 0 0 30%; /* Adjust width as needed */
+  margin-bottom: 20px; /* Add spacing between items */
+}
+
+.lesson-top-row label {
+  display: block; /* Labels appear above input/select */
+  font-size: 14px; /* Smaller font size */
+  color: #363A44; /* Text color */
+}
+
+.lesson-top-row input[type="text"],
+.lesson-top-row select,
+.lesson-top-row input[type="date"] {
+  width: 100%; /* Full width input/select */
+  padding: 8px; /* Adjust padding */
+  border: 1px solid #71788B; /* Outlined border */
+  border-radius: 5px; /* Rounded corners */
+  background-color: #DCECFF; /* Background color */
+  font-size: 14px; /* Font size */
+  margin-top: 5px; /* Add spacing between label and input/select */
+}
+
+/* Add space between each question row */
+.question-container .question-row {
+  margin-bottom: 20px; /* Adjust spacing as needed */
+}
+
+/* Add space between each question row */
+.question-container .question-row {
+  margin-bottom: 20px; /* Adjust spacing as needed */
+}
+
+/* Style for question inputs and labels */
+.question-container label,
+.question-container input[type="text"],
+.question-container input[type="number"],
+.question-container select {
+  display: inline-block;
+  margin-right: 20px; /* Add spacing between elements */
+  vertical-align: top; /* Align elements vertically */
+}
+
+/* Adjust the layout for difficulty, marks, and answer in text-based questions */
+.lesson-section.text-based-questions .question-row .difficulty-label,
+.lesson-section.text-based-questions .question-row .marks-label,
+.lesson-section.text-based-questions .question-row .answer-label {
+  width: calc(33.33% - 40px); /* Adjusted width to match base questions */
+}
+
+/* Adjust the layout for difficulty, marks, and answer in image-based questions */
+.lesson-section.image-based-questions .question-row .difficulty-label,
+.lesson-section.image-based-questions .question-row .marks-label,
+.lesson-section.image-based-questions .question-row .answer-label {
+  width: calc(33.33% - 40px); /* Adjusted width to match base questions */
+}
+
+/* Style for the difficulty, marks, and answer fields to display inline */
+.question-container .difficulty-label,
+.question-container .marks-label,
+.question-container .answer-label {
+  display: inline-block; /* Display elements inline */
+  width: auto; /* Set width to auto */
+  margin-right: 10px; /* Adjust spacing between elements */
+}
+
+.custom-questions {
+  display: flex;
+  align-items: center;
+  font-size: 14px; /* Set the same font size as the label text */
+  color: #657CD5;
+}
+
+.custom-radio {
+  font-size: inherit; /* Inherit the font size from the parent */
+  color: #657CD5; /* Set the color of the radio buttons */
+}
+
+.custom-radio input[type="radio"] {
+  margin-right: 5px; /* Add some spacing between the input and label */
+}
+
+/* Style for <br> tag */
+br {
+  color: #657CD5; /* Set color to #657CD5 */
+}
+
+/* Style for <h3> titles */
+.lesson-section, .exist h3 {
+  font-size: 14px; /* Make the font size smaller */
+  text-align: center; /* Center align the text */
+  color: #657CD5;
+  margin-bottom: 15px; /* Add spacing below the titles */
+}
+
+/* Style for text fields */
+.lesson-section input[type="text"],
+.lesson-section select {
+  width: 100%; /* Full width input/select */
+  padding: 8px; /* Adjust padding */
+  border: 1px solid #71788B; /* Outlined border */
+  border-radius: 5px; /* Rounded corners */
+  background-color: #DCECFF; /* Background color */
+  font-size: 14px; /* Font size */
+  margin-top: 5px; /* Add spacing between label and input/select */
+}
+
+/* Style for difficulty, marks, and answer labels */
+.lesson-section .question-row .difficulty-label,
+.lesson-section .question-row .marks-label,
+.lesson-section .question-row .answer-label,
+.lesson-section .photo-label input[type="file"] {
+  display: inline-block; /* Display elements inline */
+  margin-right: 20px; /* Add spacing between elements */
+  width: calc(33.33% - 60px); /* Calculate width to span 1/3 of the container minus spacing */
+}
+
+/* Adjust the layout for difficulty, marks, and answer in text-based questions */
+.lesson-section .text-based-questions .question-row .difficulty-label,
+.lesson-section .text-based-questions .question-row .marks-label,
+.lesson-section .text-based-questions .question-row .answer-label {
+  display: inline-block; /* Display elements in the same line */
+  vertical-align: top; /* Align elements vertically */
+  margin-right: 20px; /* Add spacing between elements */
+  width: calc(33.33% - 80px); /* Calculate width to span 1/3 of the container minus spacing */
+}
+
+
+/* Style for the marks label */
+.lesson-section .question-row .marks-label label {
+  display: block; /* Labels appear above input */
+  font-size: 14px; /* Smaller font size */
+  color: #363A44; /* Text color */
+}
+
+/* Style for the marks input */
+.lesson-section .question-row .marks-label input[type="number"] {
+  width: 100%; /* Full width input */
+  padding: 8px; /* Adjust padding */
+  border: 1px solid #71788B; /* Outlined border */
+  border-radius: 5px; /* Rounded corners */
+  background-color: #DCECFF; /* Background color */
+  font-size: 14px; /* Font size */
+  margin-top: 5px; /* Add spacing between label and input */
+}
+
+/* Adjust the layout for difficulty, marks, and answer in text-based questions */
+.lesson-section .text-based-questions .question-row .difficulty-label,
+.lesson-section .text-based-questions .question-row .marks-label,
+.lesson-section .text-based-questions .question-row .answer-label {
+  display: inline-block; /* Display elements in the same line */
+  vertical-align: top; /* Align elements vertically */
+  margin-right: 20px; /* Add spacing between elements */
+  width: calc(33.33% - 40px); /* Calculate width to span 1/3 of the container minus spacing */
+}
+
+/* Style for the add and delete buttons */
+.lesson-section .add-btn,
+.lesson-section .delete-btn {
+  display: inline-block; /* Display buttons inline */
+  margin-right: 10px; /* Add spacing between buttons */
+  border-radius: 5px; /* Apply slightly curved corners */
+  padding: 8px 16px; /* Add padding */
+  text-align: center; /* Center align text */
+  text-decoration: none; /* Remove underline */
+  border: none; /* Remove border */
+  cursor: pointer; /* Change cursor to pointer on hover */
+  transition: background-color 0.3s; /* Smooth transition for background color */
+}
+
+/* Style for the add button */
+.lesson-section .add-btn {
+  background-color: #657CD5; /* Set background color */
+  color: #fff; /* Set text color */
+}
+
+/* Hover style for the add button */
+.lesson-section .add-btn:hover {
+  background-color: #4858a6; /* Darken background color on hover */
+}
+
+/* Active style for the add button */
+.lesson-section .add-btn:active {
+  background-color: #3a4673; /* Darken background color on click */
+}
+
+/* Style for the delete button */
+.lesson-section .delete-btn {
+  background-color: #D8584D; /* Set background color */
+  color: #fff; /* Set text color */
+}
+
+/* Hover style for the delete button */
+.lesson-section .delete-btn:hover {
+  background-color: #ad3a34; /* Darken background color on hover */
+}
+
+/* Active style for the delete button */
+.lesson-section .delete-btn:active {
+  background-color: #8c2f2a; /* Darken background color on click */
+}
+
+/* Align buttons to the right */
+.lesson-section .add-btn,
+.lesson-section .delete-btn {
+  float: right; /* Align buttons to the right */
+}
+
+/* Style for the default "Browse" button */
+.lesson-section .question-container input[type="file"]::-webkit-file-upload-button {
+  background-color: #71788B; /* Button color */
+  color: #fff; /* Text color */
+  border: none; /* No border */
+  border-radius: 5px; /* Rounded corners */
+  padding: 8px 16px; /* Padding */
+  cursor: pointer; /* Cursor on hover */
+  margin-left: 10px; /* Add spacing between the input and other elements */
+}
+
+.lesson-section .question-container input[type="file"]::-webkit-file-upload-button:hover {
+  background-color: #5a5e6d; /* Button color on hover */
+}
+
+.lesson-section .question-container input[type="file"]::-webkit-file-upload-button:active {
+  background-color: #414451; /* Button color on click */
+}
+
+/* Style for the container of difficulty, marks, answer, and browse */
+.lesson-section .question-container .input-container {
+  display: flex; /* Use flexbox */
+  align-items: center; /* Align items vertically */
+}
+
+/* Style for the input fields (difficulty, marks, answer) */
+.lesson-section .question-container .input-container input[type="text"],
+.lesson-section .question-container .input-container input[type="number"],
+.lesson-section .question-container .input-container select {
+  flex: 1; /* Distribute remaining space evenly */
+}
+
+/* Style for the "Browse" button */
+.lesson-section .question-container input[type="file"]::-webkit-file-upload-button {
+  background-color: #71788B; /* Button color */
+  color: #fff; /* Text color */
+  border: none; /* No border */
+  border-radius: 5px; /* Rounded corners */
+  padding: 8px 16px; /* Padding */
+  cursor: pointer; /* Cursor on hover */
+  margin-left: 10px; /* Add spacing between the input and other elements */
+}
+
+/* Style for the submit button */
+#quiz-form .submit-button {
+  background-color: #55B27B; /* Button color */
+  color: #fff; /* Text color */
+  border: none; /* No border */
+  border-radius: 5px; /* Rounded corners */
+  padding: 8px 16px; /* Padding */
+  cursor: pointer; /* Cursor on hover */
+  margin-top: 20px; /* Add margin at the top */
+  display: block; /* Make it a block element */
+  margin-left: auto; /* Center horizontally */
+  margin-right: auto; /* Center horizontally */
+  transition: background-color 0.3s ease; /* Smooth transition */
+}
+
+/* Hover effect */
+#quiz-form .submit-button:hover {
+  background-color: #4AAE9B; /* Darker color on hover */
+}
+
+/* Active effect */
+#quiz-form .submit-button:active {
+  background-color: #3D9D8E; /* Even darker color on click */
+}
+
+/* Adjust the styles for the content container */
+.content-container {
+  margin: 20px auto; /* Center the container */
+  padding: 50px; /* Reduce padding */
+  background-color: #fff;
+  transition: margin-left 0.3s ease; /* Add transition for left margin */
+}
+
+/* Animation for container movement */
+.container-animation {
+  margin-left: 250px; /* Adjust as needed for your animation */
+}
+
+/* Adjust container size when sidebar is opened */
+.sidebar.open + .content-container {
+  max-width: calc(90% - 250px); /* Reduce width by sidebar width when opened */
+  margin-left: 270px; /* Add extra margin to compensate for sidebar */
+}
+
+/* Flex container for horizontal alignment */
+.lesson-top-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+}
+
+/* Individual items */
+.lesson-top-row .top-item {
+  flex: 0 0 30%; /* Adjust width as needed */
+  margin-bottom: 20px; /* Add spacing between items */
+}
+
+.lesson-top-row label {
+  display: block; /* Labels appear above input/select */
+  font-size: 14px; /* Set font size to 14px */
+  color: #9DA2AF; /* Text color */
+  margin-bottom: 5px; /* Add spacing below labels */
+}
+
+.lesson-top-row input[type="text"],
+.lesson-top-row select,
+.lesson-top-row input[type="date"] {
+  width: 100%; /* Full width input/select */
+  padding: 8px; /* Adjust padding */
+  border: 1px solid #71788B; /* Outlined border */
+  border-radius: 5px; /* Rounded corners */
+  background-color: #DCECFF; /* Background color */
+  font-size: 14px; /* Font size */
+  margin-top: 5px; /* Add spacing between label and input/select */
+}
+
+/* Style for question inputs and labels */
+.question-container label,
+.question-container input[type="text"],
+.question-container input[type="number"],
+.question-container select {
+  display: inline-block;
+  margin-right: 20px; /* Add spacing between elements */
+  vertical-align: top; /* Align elements vertically */
+  font-size: 14px; /* Set font size to 14px */
+  color: #9DA2AF; /* Text color */
+}
+
+/* Adjust the layout for difficulty, marks, and answer in text-based questions */
+.lesson-section.text-based-questions .question-row .difficulty-label,
+.lesson-section.text-based-questions .question-row .marks-label,
+.lesson-section.text-based-questions .question-row .answer-label {
+  width: calc(33.33% - 40px); /* Adjusted width to match base questions */
+}
+
+/* Adjust the layout for difficulty, marks, and answer in image-based questions */
+.lesson-section.image-based-questions .question-row .difficulty-label,
+.lesson-section.image-based-questions .question-row .marks-label,
+.lesson-section.image-based-questions .question-row .answer-label {
+  width: calc(33.33% - 40px); /* Adjusted width to match base questions */
+}
+
+/* Style for the difficulty, marks, and answer fields to display inline */
+.question-container .difficulty-label,
+.question-container .marks-label,
+.question-container .answer-label {
+  display: inline-block; /* Display elements inline */
+  width: auto; /* Set width to auto */
+  margin-right: 20px; /* Adjust spacing between elements */
+}
+
+/* Existing questions*/
+
+/* Style for the existing questions container */
+.existing-questions {
+  display: flex; /* Use flexbox for alignment */
+  align-items: center; /* Align items vertically */
+  font-size: 14px; /* Set the same font size as the label text */
+  color: #657CD5; /* Set the color of the labels */
+}
+
+/* Style for the radio buttons */
+.existing-questions input[type="radio"] {
+  margin-right: 5px; /* Add some spacing between the input and label */
+  cursor: pointer; /* Set cursor to pointer */
+}
+
+/* Style for the labels */
+.existing-questions label {
+  margin-right: 10px; /* Add spacing between elements */
+}
+
+
+/*-------------------------------------------------------------------*/
+
+
+.sidebar.open + .content-container {
+  margin-left: 250px; /* Adjust to the width of the sidebar */
+}
+
+.sidebar-content {
+  padding: 20px;
+  margin-top: 30px; /* Adjust to the height of the sidebar header */
+}
+
+.sidebar-section h5 {
+  margin-bottom: 10px;
+}
+
+.sidebar-section p {
+  margin-bottom: 5px;
+}
+
+.sidebar-section p a {
+  color: #fff;
+  text-decoration: none;
+  transition: color 0.3s ease;
+}
+
+.sidebar-section p a:hover {
+  color: #AADBFF;
+}
+
+.dropdown-content {
+  display: none;
+}
+
+.dropdown-content.show {
+  display: block;
+}
+
+.back-to-top {
+  position: absolute;
+  padding: 20px 0px;
+  bottom: 20px; /* Adjust as needed */
+  left: 50%; /* Place it in the middle horizontally */
+  transform: translateX(-50%); /* Center it horizontally */
+  width: 100%;
+  text-align: center;
+  z-index: 3; /* Ensure it's above other sidebar content */
+}
+
+.back-to-top a {
+  color: #fff;
+  text-decoration: none;
+}
+
+.back-to-top a:hover {
+  color: #AADBFF;
+}

@@ -117,20 +117,20 @@ class ImageQuestion(db.Model):
     imgQuestionID = db.Column(db.Integer, primary_key=True)
     topic = db.Column(db.String(255))
     label = db.Column(db.String(255)) # Answer to the question
+    question = db.Column(db.String(1024))
     marks = db.Column(db.Integer)
     level = db.Column(db.String(255)) # Difficulty
     filename = db.Column(db.Text)
     adminID = db.Column(db.Integer, db.ForeignKey('administrator.administratorID'))
-    # quizID = db.Column(db.Integer, db.ForeignKey('quiz.quizID')) #Let it cook
 
-    def __init__(self, topic, label, marks, level, filename, adminID):
+    def __init__(self, topic, label, marks, level, filename, question, adminID):
         self.topic = topic
         self.label = label
+        self.question = question
         self.marks = marks
         self.level = level
         self.filename = filename
         self.adminID = adminID
-        # self.quizID = quizID
 
 # CamQuestion Schema Model
 class CamQuestion(db.Model):
@@ -139,18 +139,18 @@ class CamQuestion(db.Model):
     camQuestionID = db.Column(db.Integer, primary_key=True)
     topic = db.Column(db.String(255))
     label = db.Column(db.String(255))
+    question = db.Column(db.String(1024))
     marks = db.Column(db.Integer)
     level = db.Column(db.String(255))
     adminID = db.Column(db.Integer, db.ForeignKey('administrator.administratorID'))
-    # quizID = db.Column(db.Integer, db.ForeignKey('quiz.quizID')) #Let it cook
 
-    def __init__(self, topic, label, marks, level, quizID, adminID):
+    def __init__(self, topic, label, marks, level, question, adminID):
         self.topic = topic
         self.label = label
+        self.question = question
         self.marks = marks
         self.level = level
         self.adminID = adminID
-        # self.quizID = quizID
 
 # Quiz Schema Model
 class Quiz(db.Model):
@@ -162,20 +162,19 @@ class Quiz(db.Model):
     date = db.Column(db.Date, default=datetime.now) #Date it was created
     due_date = db.Column(db.Date)
     adminID = db.Column(db.Integer, db.ForeignKey('administrator.administratorID'))
+    level = db.Column(db.String(64))
     
-    # Relationship with Administrator table
-    # administrator = db.relationship('Administrator', back_populates='quizzes')
-
     # Relationship with ImageQuestion table
     image_questions = db.relationship('ImageQuestion', secondary=quiz_image_question, backref='quizzes')
 
     # Relationship with CameraQuestion table
     camera_questions = db.relationship('CamQuestion', secondary=quiz_camera_question, backref='quizzes')
 
-    def __init__(self, topic, numQuestions, date, adminID):
+    def __init__(self, topic, level, numQuestions, due_date, adminID):
         self.topic = topic
+        self.level = level
         self.numQuestions = numQuestions
-        self.date = date
+        self.due_date = due_date
         self.adminID = adminID
 
 # Scores for each participant in each quiz

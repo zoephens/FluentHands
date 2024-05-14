@@ -239,7 +239,6 @@
       }
     
       document.addEventListener("DOMContentLoaded", function() {
-        toggleSidebar()
 
         // Ensure the DOM is fully loaded before accessing elements
         var progressReportLink = document.getElementById("progress-report-link"); // Correct the variable declaration and element access
@@ -311,10 +310,10 @@
         });
     });    
 
-      function adjustSidebarHeight() {
-        var sidebar = document.querySelector('.sidebar');
-        var bodyHeight = document.body.scrollHeight;
-        sidebar.style.height = bodyHeight + 150 + 'px';
+    function adjustSidebarHeight() {
+      var sidebar = document.querySelector('.sidebar');
+      var bodyHeight = document.body.scrollHeight;
+      sidebar.style.height = bodyHeight + 800 + 'px';
     }
 
     // Run on load and on window resize

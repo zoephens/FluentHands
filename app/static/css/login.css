@@ -80,6 +80,7 @@
     border-radius: 20px; /* More rounded corners */
     font-size: 18px; /* Smaller font size if needed */
     position: relative;
+    margin-top: 7px;
 }
 
 /* Button Animation */
@@ -341,13 +342,46 @@
     opacity: 1; /* Fully visible */
 }
 
-/* Particles */
-canvas {
-    position: absolute;
-    top: 0;
-    left: 0;
-    pointer-events: none; /* Makes the canvas click-through */
-    z-index: 1; /* Ensures canvas is above the background but below the text/content */
+/* Radio Button Styles */
+.radio-inline {
+    display: inline-block;
+    margin-left: 40px; 
+}
+
+.radio-inline:first-child {
+    margin-left: 0; 
 }
 
 
+.radio-inline .form-check-input {
+    margin-top: 3px; 
+}
+
+/* Hide the default radio button */
+.form-check-input {
+    appearance: none;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    background-color: #fff; /* Background color for the custom radio button */
+    border: 2px solid #ccc; /* Border color */
+    padding: 5px; /* Size of the button */
+    border-radius: 50%; /* Circular border */
+    display: inline-block;
+    position: relative;
+}
+
+.form-check-input:hover {
+    border-color: #888; /* Darker border on hover */
+}
+
+/* Style for when the radio button is checked */
+.form-check-input:checked {
+    background-color: #D8584D; /* Change background color when checked */
+    border-color: #D8584D; /* Optional: change border color if needed */
+}
+
+/* Ensuring the label is clickable and changes the state of the invisible radio */
+.form-check-label {
+    margin-left: 5px;
+    cursor: pointer;
+}

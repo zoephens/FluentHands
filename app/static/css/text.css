@@ -204,6 +204,7 @@ button:hover {
     white-space: nowrap;
     padding-bottom: 10px; /* To ensure cards don't get cut off */
 }
+
 .quizzes {
     display: flex;
     gap: 20px;
@@ -656,7 +657,6 @@ input[type="radio"]:checked::before {
     margin-top: 20px;
 }
 
-
 .answer-bar {
     width: 70%;
     padding: 12px 15px;
@@ -677,4 +677,57 @@ input[type="radio"]:checked::before {
     background-color: #4c61b5;
 }
 
+/* Lesson Plan Page */
+.add-new-quiz {
+    color: #9DA2AF;
+    padding-bottom: 30px;
+}
 
+.lesson-top-row label,  .question-row label {
+    display: block; /* Labels appear above input/select */
+    font-size: 14px; /* Set font size to 14px */
+    color: #9DA2AF; /* Text color */
+}
+
+.lesson-top-row .form-control, .question-row .form-control {
+  width: 100%; /* Full width input/select */
+  padding: 8px; /* Adjust padding */
+  border: 1px solid #71788B; /* Outlined border */
+  border-radius: 5px; /* Rounded corners */
+  background-color: #DCECFF; /* Background color */
+  font-size: 14px; /* Font size */
+}
+
+.form-control {
+    -webkit-appearance: menulist-button;
+    appearance: menulist-button;
+}
+
+.learning-materials-container h2 {
+    color: #363A44;
+    margin-bottom: 10px; /* Add spacing below the heading */
+}
+
+/* Style for <h3> titles */
+.exist h3 {
+    font-size: 14px; /* Make the font size smaller */
+    text-align: center; /* Center align the text */
+    color: #657CD5;
+    font-weight: bold;
+    margin-bottom: 10px; /* Add spacing below the titles */
+}
+
+.hr-thick {
+    border-top: 1px solid #000;  /* Adjust '5px' to increase or decrease thickness */
+    border-bottom: none;
+}
+
+/* Style for the default "Browse" button */
+.lesson-section input[type="file"]::-webkit-file-upload-button {
+    background-color: #71788B; /* Button color */
+    color: #fff; /* Text color */
+    border: none; /* No border */
+    border-radius: 5px; /* Rounded corners */
+    padding: 8px 16px; /* Padding */
+    cursor: pointer; /* Cursor on hover */
+}

@@ -1,27 +1,246 @@
-{% extends "dashboard.html" %}
+{% block main %}
+<div class="signup-content">
+    <div class="signup-form">
+        <h2 class="form-title">Create Account</h2>
 
-{% block dashboard_content %}
-<h1>Leaderboard</h1>
-<table>
-    <thead>
-        <tr>
-            <th>Rank</th>
-            <th>Full Name</th>
-            <th></th>
-            <th></th>
-            <th>Total Score</th>
-        </tr>
-    </thead>
-    <tbody>
-        {% for item in leaderboard_data %}
-        <tr>
-            <td>{{ item.rank }}</td>
-            <td>{{ item.fname }} {{ item.lname }}</td>
-            <td></td>
-            <td></td>
-            <td>{{ item.total_score }}</td>
-        </tr>
-        {% endfor %}
-    </tbody>
-</table>
+        <form method="POST" class="register-form" id="register-form">
+            {{ form.csrf_token }}
+            <div class="form-group">
+                <label for="fname"><i class="fa-solid fa-user"></i></label>
+                {{ form.fname(class='input-field', placeholder="FirstName", autocomplete="given-name") }}
+            </div>
+
+            <div class="form-group">
+                <label for="lname"><i class="fa-solid fa-user"></i></label>
+                {{ form.lname(class='input-field', placeholder="LastName", autocomplete="on") }}
+            </div>
+
+            <div class="form-group">
+                <label for="email"><i class="fa-solid fa-envelope"></i></label>
+                {{ form.email(class='input-field', id='email', placeholder="Your Email", autocomplete="email") }}
+            </div>
+
+            <div class="form-group">
+                <label for="pass"><i class="fa-solid fa-lock"></i></label>
+                {{ form.password(class='input-field', id='pass', placeholder="Password", autocomplete="off") }}
+            </div>
+            
+            <div class="form-group">
+                {{ form.account_type(class="input-field user-type") }}
+            </div>
+
+            <div class="form-group form-button">
+                <button type="submit" id="signup" class="form-submit">Register</button>
+            </div>
+        </form>
+    </div>
+    <div class="signup-image">
+        <figure><img src="{{ url_for('static', filename='images/LoginPersons.png') }}" alt="Splash Image"></figure>
+        <a href="{{ url_for('login') }}" class="signup-image-link">Been Here Before? Login to Test How Fluent Your Hands Are!</a>
+    </div>
+</div>
 {% endblock %}
+
+<!-- body, html {
+    height: 100%;
+    margin: 0;
+    font-family: 'Avenir', sans-serif;
+    background: url('../images/background.png') no-repeat center center fixed;
+    background-size: 100% auto; /* Set initial background size */
+    animation: pulse 10s infinite alternate ease-in-out;
+}
+
+@keyframes pulse {
+    0% { background-size: 100% auto; }
+    50% { background-size: 110% auto; } /* Scales up the background */
+    100% { background-size: 100% auto; }
+} -->
+
+<!-- INSERT INTO public.image_question(
+	"imgQuestionID", topic, label, marks, level, filename, "adminID")
+	VALUES (2, 'Alphabet', 'B', 5, 'Beginner', 'B.png', 9); -->
+
+
+    <div class="container mt-5 dashboard-content">
+        <h1>Lesson Plan Form</h1>
+        <form method="POST">
+            {{ lesson_form.hidden_tag() }}
+            <div class="form-group">
+                {{ lesson_form.topic.label }}
+                {{ lesson_form.topic(class="form-control") }}
+            </div>
+            <div class="form-group">
+                {{ lesson_form.num_questions.label }}
+                {{ lesson_form.num_questions(class="form-control") }}
+            </div>
+            <div class="form-group">
+                {{ lesson_form.due_date.label }}
+                {{ lesson_form.due_date(class="form-control") }}
+            </div>
+            <div class="form-group">
+                {{ lesson_form.overall_difficulty.label }}
+                {{ lesson_form.overall_difficulty(class="form-control") }}
+            </div>
+    
+            <br>
+    
+            <div class="form-group">
+                {{ lesson_form.choose_from_bank.label }}
+                {{ lesson_form.choose_from_bank(id="choose_from_bank", class="form-check-input", style="margin-left: 10px") }}
+            </div>  
+            
+            <div id="questions_bank" style="display: none;">
+                <!-- Table for displaying questions -->
+                <h2>Question Bank</h2>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Select</th>
+                            <th>Topic</th>
+                            <th>Question</th>
+                            <th>Answer</th>
+                            <th>Marks</th>
+                        </tr>
+                    </thead>
+                    <tbody id="bankquestions">
+    
+                    </tbody>
+                </table>
+    
+            </div>
+    
+            <br>
+    
+            <div class="form-group">
+                {{ lesson_form.make_custom_questions.label }}
+                {{ lesson_form.make_custom_questions(id="make_custom_questions", class="form-check-input", style="margin-left: 10px") }}
+            </div>   
+            <div id="custom_questions_form" style="display: none;">
+                <!-- Form elements for adding custom questions -->
+                <!-- Questions will have a type -->
+            </div>
+    
+            <br>
+            
+            <button type="submit" class="btn btn-primary" style="margin-top: 20px">Submit</button>
+        </form>
+    </div>
+
+    <div class="quiz-container">
+                        
+        <div class="quiz-card">
+            <p>Total Marks: {{ quiz.total_marks }}</p>
+            <p>Level: {{ quiz.level }}</p>
+            <p>Due Date: {{ quiz.due_date }}</p>
+            <p>Created Date: {{ quiz.created_date }}</p>
+
+            <div class="questions">
+                <h4>Camera Questions:</h4>
+                {% for question in quiz.camera_questions %}
+                    <div>
+                        <p>Q: {{ question.text }}</p>
+                        <p>Marks: {{ question.marks }}</p>
+                    </div>
+                {% endfor %}
+
+                <h4>Image Questions:</h4>
+                {% for question in quiz.image_questions %}
+                    <div>
+                        <p>Q: {{ question.text }}</p>
+                        <p>Marks: {{ question.marks }}</p>
+                        <img src="{{ url_for('static', filename=question.image_url) }}" alt="Question Image">
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+
+
+
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-xl-12 mb-4">
+                <!-- Unified container for quizzes -->
+                <div class="learning-materials-section" style="margin-left: 200px; margin-right: 200px">
+                    <div class="quizdiv">
+                        <!-- {% for quiz in quizzes %} -->
+                        <div class="quizzes-container">
+                            <!-- Quiz Header -->
+                            <div class="quiz-header">
+                                <h2><i class="fa fa-check-square"></i>Quiz {{ quiz.quiz_id }}: {{ quiz.topic }}</h2>
+                                <!-- {% for quiz_question in quiz['camera_questions'] %} -->
+                            </div>
+    
+                            <div class="quiz-container" style="margin-bottom: 50px"></div>
+                                <div id="question-container"></div> <!-- Placeholder for questions -->
+                                <div class="navigation-buttons">
+                                    <button class="prev-button"><i class="fa fa-chevron-left"></i> Previous</button>
+                                    <button class="next-button"><i class="fa fa-chevron-right"></i> Next</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endblock %}
+
+
+    <div class="quiz-container" style="margin-bottom: 50px">
+        <div class="question-container">
+            <h3 style="font-weight: bold">Question {{ loop.index0 + 1 }}</h3>
+            <p class="question-text" style="color: black">{{ quiz_question.text }}</p>
+            
+            <div>
+                <video id="video_feed" autoplay></video>
+            </div>
+
+            <h3 id="label">Answer</h3>
+            <p>Mark(s): {{ quiz_question.marks }}</p>
+            
+        </div>
+        {% endfor %} 
+
+        {% for quiz_question in quiz['image_questions'] %}
+    </div>
+
+    <!-- Quiz Image Questions -->
+    <div class="quiz-container" style="margin-bottom: 50px">
+        <div class="question-container">
+            <h3 style="font-weight: bold">Question {{ loop.index0 + 1 }}</h3>
+            <p class="question-text" style="color: black">{{ quiz_question.text }}</p>
+            
+            <div>
+                <!-- <img id="video_feed" autoplay/> -->
+                <!-- <img src="{{ url_for('uploaded_file', filename=quiz_question.image_url) }}" alt="Quiz Image"> -->
+                <div class="d-flex justify-content-center align-items-center" style="height: 400px;"> <!-- You can set a specific height or remove it depending on your layout needs -->
+                    <img src="../static/images/{{ quiz_question.image_url }}" alt="Quiz Image" style="max-width: 100%; height: auto;">
+                </div>
+
+                <!-- <img class="d-flex justify-content-center align-items center" src="../static/images/{{ quiz_question.image_url }}" alt="Quiz Image" style="width: 100px; height: auto"> -->
+                <!-- <img src="../../uploads/{{ quiz_question.image_url }}" alt="Quiz Image"> -->
+            </div>
+
+            <!-- Answer Input -->
+            <div class="answer-input">
+                <input type="text" placeholder="Type your answer" class="answer-bar">
+            </div>
+            <p>Mark(s): {{ quiz_question.marks }}</p>
+            
+        </div>
+        {% endfor %} 
+
+        <!-- Navigation buttons -->
+        <div class="navigation-buttons">
+            <button class="prev-button"><i class="fa fa-chevron-left"></i> Previous</button>
+            <button class="next-button" disabled>Next <i class="fa fa-chevron-right"></i></button>
+        </div>
+    </div>
+</div>
+{% endfor %} 
+</div>
+</div>
+</div>
+</div>
+</div>

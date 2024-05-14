@@ -25,6 +25,5 @@ opencv-python
 mediapipe
 # tensorflow
 # keras
-# tensorflowjs
-# flask-socketio
+
 reportlab

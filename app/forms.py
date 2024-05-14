@@ -1,6 +1,6 @@
 from flask_wtf import FlaskForm
-from wtforms import StringField, PasswordField, SelectField, IntegerField, DateField, FieldList, FormField, BooleanField
-from wtforms.validators import InputRequired
+from wtforms import StringField, SubmitField, PasswordField, SelectField, RadioField, IntegerField, DateField, FieldList, FormField, BooleanField
+from wtforms.validators import InputRequired, DataRequired
 from flask_wtf.file import FileField, FileRequired, FileAllowed
 # from werkzeug.utils import secure_filename
 
@@ -13,20 +13,20 @@ class SignUpForm(FlaskForm):
     lname = StringField('Last Name', validators=[InputRequired(message='Last name is required')])
     email = StringField('Email', validators=[InputRequired()])
     password = PasswordField('Password', validators=[InputRequired(message='Password is required')])
-    account_type = SelectField('Account Type', choices=[('participant', 'Student'), ('admin', 'Administrator')], validators=[InputRequired(message='Please select user type')])
-
+    repeat_password = PasswordField('Repeat Password', validators=[InputRequired(message='Password does not match!')])
+    account_type = RadioField('Account Type', choices=[('participant', 'Student'), ('admin', 'Administrator')], validators=[InputRequired(message='Please select user type')])
 class EnrolForm(FlaskForm):
     room_code = StringField('Access Code', validators=[InputRequired(message='Enter Access Code')])
 
 class TextQuestionForm(FlaskForm):
     question = StringField('Question', validators=[InputRequired()])
-    difficulty = IntegerField('Difficulty', validators=[InputRequired()])
+    difficulty = SelectField('Question Difficulty', choices=[('Beginner', 'Beginner'), ('Intermediate', 'Intermediate'), ('Pro', 'Advanced')], validators=[InputRequired()])
     marks = IntegerField('Marks', validators=[InputRequired()])
     answer = StringField('Answer', validators=[InputRequired()])
 
 class ImageQuestionForm(FlaskForm):
     question = StringField('Question', validators=[InputRequired()])
-    difficulty = IntegerField('Difficulty', validators=[InputRequired()])
+    difficulty = SelectField('Question Difficulty', choices=[('Beginner', 'Beginner'), ('Intermediate', 'Intermediate'), ('Pro', 'Advanced')], validators=[InputRequired()])
     marks = IntegerField('Marks', validators=[InputRequired()])
     answer = StringField('Answer', validators=[InputRequired()])
     photo = FileField('Upload Photo', validators=[
@@ -35,12 +35,15 @@ class ImageQuestionForm(FlaskForm):
     ])
 
 class LessonPlan(FlaskForm):
-    topic = SelectField('Topic', choices=[('alphabet', 'Alphabet'), ('greetings', 'Greetings'), ('polite_words', 'Polite Words')], validators=[InputRequired(message='Please select a topic')])
-    
-    NoQues = IntegerField('# of Questions', validators=[InputRequired()])
+    topic = SelectField('Topic', choices=[('Alphabet', 'Alphabet'), ('Greetings', 'Greetings'), ('Polite Words', 'Polite Words')], validators=[InputRequired(message='Please select a topic')])
+    num_questions = IntegerField('# of Questions', validators=[InputRequired()])
     due_date = DateField('Due Date', validators=[InputRequired()])
-    overall_difficulty = overall_difficulty = SelectField('Overall Difficulty', choices=[('beginner', 'Beginner'), ('intermediate', 'Intermediate'), ('advanced', 'Advanced')], validators=[InputRequired()])
-    make_custom_questions = BooleanField('Custom Questions')
+    overall_difficulty = SelectField('Quiz Difficulty', choices=[('Beginner', 'Beginner'), ('Intermediate', 'Intermediate'), ('Pro', 'Advanced')], validators=[InputRequired()])
+    choose_from_bank = BooleanField('Would you like to Choose Existing Questions from Bank?')
+    make_custom_questions = BooleanField('Would you like to add Custom Questions?')
 
-    text_questions = FieldList(FormField(TextQuestionForm))
-    image_questions = FieldList(FormField(ImageQuestionForm))
+    num_text_questions = IntegerField('Number of Text Questions')
+    num_image_questions = IntegerField('Number of Image Questions')
+
+    text_questions = FieldList(FormField(TextQuestionForm), min_entries=3)
+    image_questions = FieldList(FormField(ImageQuestionForm), min_entries=2)

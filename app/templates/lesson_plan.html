@@ -2,149 +2,410 @@
 
 <head>
     {% block css %}
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/text.css') }}">
+    <!-- <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}"> -->
     {% endblock%}
 </head>
 
 {% block dashboard_content %}
 <div class="container mt-5 dashboard-content">
-    <h1>Lesson Plan Form</h1>
-    <form method="post">
-        {{ lesson_form.hidden_tag() }}
-        <div class="form-group">
-            {{ lesson_form.topic.label }}
-            {{ lesson_form.topic(class="form-control") }}
-        </div>
-        <div class="form-group">
-            {{ lesson_form.NoQues.label }}
-            {{ lesson_form.NoQues(class="form-control") }}
-        </div>
-        <div class="form-group">
-            {{ lesson_form.due_date.label }}
-            {{ lesson_form.due_date(class="form-control") }}
-        </div>
-        <div class="form-group">
-            {{ lesson_form.overall_difficulty.label }}
-            {{ lesson_form.overall_difficulty(class="form-control") }}
-        </div>
-        <div class="form-group">
-            {{ lesson_form.make_custom_questions.label }}
-            {{ lesson_form.make_custom_questions(id="make_custom_questions", class="form-check-input", style="margin-left: 10px") }}
-        </div>   
-        
-        <div id="custom-questions" style="display: none;">
+    <div class="learning-materials-container" style="padding: 40px">
+        <h2>Learning Materials</h2>
+        <p class="add-new-quiz">Add New Quiz</p>
 
-            <div id="text-questions">
-                <h3>Text-based Questions</h3>
-                <div id="text-question-fields"></div>
-                <button type="button" onclick="addTextQuestion()">Add Text Question</button>
+        <form id="quiz-form" method="POST" enctype="multipart/form-data"><!-- Start of Form -->
+            {{ lesson_form.hidden_tag() }}
+            
+            {{ lesson_form.num_text_questions(id="num_text_questions", type="hidden", value="0")}}
+            {{ lesson_form.num_image_questions(id="num_image_questions", type="hidden", value="0")}}
+
+            <div class="lesson-top-row">
+                <div class="form-group col-md-3">
+                    {{ lesson_form.topic.label }}
+                    {{ lesson_form.topic(class="form-control") }}
+                </div>
+
+                <div class="form-group col-md-1">
+                    {{ lesson_form.num_questions.label }}
+                    {{ lesson_form.num_questions(class="form-control", id="num-questions", min="1", step="1", placeholder="0") }}
+                </div>
+
+                <div class="form-group col-md-2">
+                    {{ lesson_form.due_date.label }}
+                    {{ lesson_form.due_date(class="form-control", id="date") }}
+                </div>
+
+                <div class="form-group col-md-3">
+                    {{ lesson_form.overall_difficulty.label }}
+                    {{ lesson_form.overall_difficulty(class="form-control") }}
+                </div>
+            </div>
+
+            <br>
+
+            <!-- Existing Questions -->
+            <div class="form-group">
+                {{ lesson_form.choose_from_bank.label(style="color: #657CD5; font-size: 14px;") }}
+                {{ lesson_form.choose_from_bank(id="choose_from_bank", class="form-check-input", style="margin-left: 10px; cursor: pointer") }}
+            </div> 
+        
+            <br>
+
+            <div class="exist">
+                <!-- Text Based Questions -->
+                <div class="existing-section text-based-questions" id="text-questions" style="display: none;"> <!-- Added class "text-based-questions" -->
+                    <h3>Camera Based Questions</h3>
+                    <hr class="hr-thick">
+                    <br>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>ADD</th>
+                                <th>Topic</th>
+                                <th>Question</th>
+                                <th>Answer</th>
+                                <th>Marks</th>
+                            </tr>
+                        </thead>
+                        <tbody id="camquestions">
+                            <!-- Data rows will be added here -->
+                        </tbody>
+                    </table>
+                </div>
+                    
+                <br>
+                <br>
+                <br>
+
+                <!-- Image Based Questions -->
+                <div class="existing-section image-based-questions" id="image-questions" style="display: none;"> <!-- Added class "image-based-questions" -->
+                    <h3>Image Based Questions</h3>
+                    <hr class="hr-thick">
+                    <br>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>ADD</th>
+                                <th>Topic</th>
+                                <th>Question</th>
+                                <th>Answer</th>
+                                <th>Marks</th>
+                            </tr>
+                        </thead>
+                        <tbody id="imagequestions">
+                            <!-- Data rows will be added here -->
+                        </tbody>
+                    </table>
+                </div>
             </div>
             
-            <div id="image-questions" style="margin-top: 10px">
-                <h3>Image-based Questions</h3>
-                <div id="image-question-fields"></div>
-                <button type="button" onclick="addImageQuestion()">Add Image Question</button>
-            </div>
+            <br>
+            <br>
+        
+            <!-- ------------------------------------------------------------------------------------------------------------------------------------------------ -->
+
+            <!-- Custom Questions -->
+            <div class="form-group">
+                {{ lesson_form.make_custom_questions.label(style="color: #657CD5; font-size: 14px;") }}
+                {{ lesson_form.make_custom_questions(id="make_custom_questions", class="form-check-input", style="margin-left: 10px; cursor: pointer") }}
+            </div>   
+
+            <br>
+
+            <div class="exist">
+                <!-- Text Based Questions -->
+                <div class="lesson-section text-based-questions" id="custom-text-questions" style="display: none;"> <!-- Added class "text-based-questions" -->
+                    <h3>Camera Based Questions</h3>
+                    <hr class="hr-thick">
+                    <br>
+
+                    <div id="text-form">
+                        {% for txtquestion in lesson_form.text_questions %}
+                        {{ txtquestion.csrf_token() }}
             
-        </div>
-        <button type="submit" class="btn btn-primary" style="margin-top: 20px">Submit</button>
-    </form>
+                        <div class="txtquestion-form question-row" id="text_question_{{ loop.index0 }}">
+                            <div class="form-group col-md-5">
+                                {{ txtquestion.question.label }}
+                                {{ txtquestion.question(class="form-control", placeholder="Enter question") }}
+                            </div>
+
+                            <div class="form-group col-md-2">
+                                {{ txtquestion.difficulty.label }}
+                                {{ txtquestion.difficulty(class="form-control") }}
+                            </div>
+
+                            <div class="form-group col-md-2">
+                                {{ txtquestion.marks.label }}
+                                {{ txtquestion.marks(class="form-control", id="marks", min="1", step="1", placeholder="Enter marks") }}
+                            </div>
+
+                            <div class="form-group col-md-2">
+                                {{ txtquestion.answer.label }} 
+                                {{ txtquestion.answer(class="form-control", id="answer", placeholder="Answer") }}
+                            </div>
+                        </div>
+                        {% endfor %} 
+                    </div>
+                    <div class="button-container">
+                        <button id="add-text-btn" onclick="addTextQuestion()" type="button" class="btn btn-success float-right" style="margin-right: 40px; padding: 5px 30px">Add</button> <!-- "Add" button for text-based questions -->
+                    </div>
+                </div>    
+
+                <br>
+                <br>
+                <br>
+
+                <!-- Image Based Questions -->
+                <div class="lesson-section image-based-questions" id="custom-image-questions" style="display: none;"> <!-- Added class "image-based-questions" -->
+                    <h3>Image Based Questions</h3>
+                    <hr class="hr-thick">
+                    <br>
+
+                    <div id="image-form">
+                        {% for imgquestion in lesson_form.image_questions %}
+                        {{ imgquestion.csrf_token() }}
+                        <div class="imgquestion-form question-row" id="image_question_{{ loop.index0 }}">
+
+                            <div class="form-group col-md-5">
+                                {{ imgquestion.question.label }} 
+                                {{ imgquestion.question(class="form-control", placeholder="Enter question") }}
+                            </div>
+
+                            <div class="form-group col-md-2">
+                                {{ imgquestion.difficulty.label }}
+                                {{ imgquestion.difficulty(class="form-control") }}
+                            </div>
+
+                            <div class="form-group col-md-2">
+                                {{ imgquestion.marks.label }}
+                                {{ imgquestion.marks(class="form-control", id="marks", min="1", step="1", placeholder="Enter marks") }}
+                            </div>
+
+                            <div class="form-group col-md-2">
+                                {{ imgquestion.answer.label }} 
+                                {{ imgquestion.answer(class="form-control", id="answer", placeholder="Answer") }}
+                            </div>
+
+                            <div class="form-group col-md-2">
+                                {{ imgquestion.photo.label }} 
+                                <div class="photo-container">
+                                    {{ imgquestion.photo(id="photo", style="color: black") }}
+                                </div>
+                            </div>  
+                        </div> 
+                        {% endfor %}  
+                    </div>
+                    <div class="button-container">
+                        <button id="add-img-btn" onclick="addImageQuestion()" type="button" class="btn btn-success float-right" style="margin-right: 40px; padding: 5px 30px">Add</button> <!-- "Add" button for text-based questions -->
+                    </div>
+                </div>
+            </div>
+
+            <br>
+            <br>
+            
+            <!-- Submit button -->
+            <div class="center-submit">
+                <button type="submit" class="submit-button">SUBMIT</button>
+            </div>
+        </form>
+    </div>
 </div>
 {% endblock %}
+
 
 {% block js %} 
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
 <script>
-    var textQuestionCounter = 0;
-    var imageQuestionCounter = 0;
+function addTextQuestion() {
+    var counter = document.querySelectorAll('.txtquestion-form').length;
+    var newTxtQuestionDiv = document.createElement('div');
+    newTxtQuestionDiv.innerHTML = `
+        <div class="txtquestion-form question-row" id="text_question_${counter}">
+            <div class="form-group col-md-5">
+                <label for="text_questions-${counter}-question">Question</label>
+                <input type="text" class="form-control" name="text_questions-${counter}-question" placeholder="Enter question">
+            </div>
 
-    document.addEventListener('DOMContentLoaded', function() {
-        var customQuestionsCheckbox = document.getElementById('make_custom_questions');
-        
-        var customQuestionsDiv = document.getElementById('custom-questions');
-        var textQuestionsDiv = document.getElementById('text-questions');
-        var imageQuestionsDiv = document.getElementById('image-questions');
-    
-        console.log(customQuestionsDiv);
-        
-        customQuestionsCheckbox.addEventListener('change', function() {
-            if (this.checked) {
-                customQuestionsDiv.style.display = 'block';
-            } else {
-                customQuestionsDiv.style.display = 'none';
-            }
-        });
-    });       
-    
-    function addTextQuestion() {
-        textQuestionCounter++;
+            <div class="form-group col-md-2">
+                <label for="text_questions-${counter}-difficulty">Question Difficulty</label>
+                <select class="form-control" name="text_questions-${counter}-difficulty">
+                    <option value="Beginner">Beginner</option>
+                    <option value="Intermediate">Intermediate</option>
+                    <option value="Advanced">Advanced</option>
+                </select>
+            </div>
 
-        var textQuestionFields = document.getElementById('text-question-fields');
+            <div class="form-group col-md-2">
+                <label for="text_questions-${counter}-marks">Marks</label>
+                <input type="number" class="form-control" name="text_questions-${counter}-marks" min="1" step="1" placeholder="Enter marks">
+            </div>
 
-        var questionInput = document.createElement('input');
-        questionInput.type = 'text';
-        questionInput.name = 'text_question_' + textQuestionCounter + '_question';
-        questionInput.placeholder = 'Enter question text';
-        textQuestionFields.appendChild(questionInput);
+            <div class="form-group col-md-2">
+                <label for="text_questions-${counter}-answer">Answer</label>
+                <input type="text" class="form-control" name="text_questions-${counter}-answer" placeholder="Answer">
+            </div>
 
-        var difficultyInput = document.createElement('input');
-        difficultyInput.type = 'text';
-        difficultyInput.name = 'text_question_' + textQuestionCounter + '_difficulty';
-        difficultyInput.placeholder = 'Enter difficulty level';
-        textQuestionFields.appendChild(difficultyInput);
+            <button type="button" onclick="removeQuestion('text_question_${counter}')" class="btn btn-danger">Remove</button>
+        </div>
+    `;
+    document.getElementById('text-form').appendChild(newTxtQuestionDiv);
+}
 
-        var marksInput = document.createElement('input');
-        marksInput.type = 'number';
-        marksInput.name = 'text_question_' + textQuestionCounter + '_marks';
-        marksInput.placeholder = 'Enter marks';
-        textQuestionFields.appendChild(marksInput);
+function removeQuestion(questionId) {
+    var element = document.getElementById(questionId);
+    element.parentNode.removeChild(element);
+}
 
-        var answerInput = document.createElement('input');
-        answerInput.type = 'text';
-        answerInput.name = 'text_question_' + textQuestionCounter + '_answer';
-        answerInput.placeholder = 'Enter answer';
-        textQuestionFields.appendChild(answerInput);
 
-        var lineBreak = document.createElement('br');
-        textQuestionFields.appendChild(lineBreak);
-    }
+function removeQuestion(questionId) {
+    var element = document.getElementById(questionId);
+    element.parentNode.removeChild(element);
+}
 
-    function addImageQuestion() {
-        imageQuestionCounter++;
+
+function addImageQuestion() {
+    var counter = document.getElementsByClassName('imgquestion-form').length;
+    var newImgQuestionDiv = document.createElement('div');
+    newImgQuestionDiv.innerHTML = `
+        <div class="imgquestion-form question-row" id="image_question_${counter}">
+            <div class="form-group col-md-5">
+                <label for="image_questions-${counter}-question">Question</label>
+                <input type="text" class="form-control" name="image_questions-${counter}-question" id="image_question_${counter}-question" placeholder="Enter question">
+            </div>
+
+            <div class="form-group col-md-2">
+                <label for="image_questions-${counter}-difficulty">Question Difficulty</label>
+                <select class="form-control" name="image_questions-${counter}-difficulty" id="image_questions-${counter}-difficulty">
+                    <option value="Beginner">Beginner</option>
+                    <option value="Intermediate">Intermediate</option>
+                    <option value="Advanced">Advanced</option>
+                </select>
+            </div>       
+            
+            <div class="form-group col-md-2">
+                <label for="image_questions-${counter}-marks">Marks</label>
+                <input type="number" class="form-control" name="image_questions-${counter}-marks" id="image_questions-${counter}-marks" min="1" step="1" placeholder="Enter marks">
+            </div>
+
+            <div class="form-group col-md-2">
+                <label for="image_questions-${counter}-answer">Answer</label>
+                <input type="text" class="form-control" name="image_questions-${counter}-answer" id="image_questions-${counter}-answer" placeholder="Answer">
+            </div>
+
+            <div class="form-group col-md-11">
+                <label for="image_questions-${counter}-photo">Upload Photo</label>
+                <input type="file" style="color: black" name="image_questions-${counter}-photo" id="image_questions-${counter}-photo" placeholder="Answer">
+            </div>
+            <button type="button" onclick="removeImageQuestion('image_question_${counter}')" class="btn btn-danger" style="padding: 5px 30px">Remove</button>
+        </div>
+    `;
+    document.getElementById('image-form').appendChild(newImgQuestionDiv);
+}
+
+function removeTextQuestion(questionId) {
+    var element = document.getElementById(questionId);
+    element.parentNode.removeChild(element);
+}
+
+function removeImageQuestion(id) {
+    var element = document.getElementById(id);
+    element.parentNode.removeChild(element);
+}
+
+// Shows or Hides the various form sections
+$(document).ready(function() {
+    $('#choose_from_bank').change(function() {
+        if (this.checked) {
+            $('#text-questions').show();
+            $('#image-questions').show();
+            fetchQuestions();
+        } else {
+            $('#text-questions').hide();
+            $('#image-questions').hide();
+        }
+    });
+
+    $('#make_custom_questions').change(function() {
+        if (this.checked) {
+            $('#custom-text-questions').show();
+            $('#custom-image-questions').show();
+        } else {
+            $('#custom-text-questions').hide();
+            $('#custom-image-questions').hide();
+        }
+    });
+
+    function fetchQuestions() {
+        const topic = $('#topic').val();
+        const difficulty = $('#overall_difficulty').val();
+
+        if (topic) {
+            $.ajax({
+                url: '/get_questions', // API endpoint that returns questions based on topic
+                type: 'GET',
+                data: {topic: topic, difficulty: difficulty},
+                success: function(data) {
+                    console.log(data);
+                    // Clear existing rows in both tables
+                    $('#camquestions').empty();
+                    $('#imagequestions').empty();
     
-        var imageQuestionFields = document.getElementById('image-question-fields');
+                    data.forEach(function(question) {
+                        // Prepare the row HTML for the question
+                        var row = `<tr>
+                            <td><input type="checkbox" name="question" value="${question.id}"></td>
+                            <td>${question.topic}</td>
+                            <td>${question.text}</td>
+                            <td>${question.answer}</td>
+                            <td>${question.marks}</td>
+                        </tr>`;
     
-        var questionInput = document.createElement('input');
-        questionInput.type = 'text';
-        questionInput.name = 'image_question_' + imageQuestionCounter + '_question';
-        questionInput.placeholder = 'Enter question text';
-        imageQuestionFields.appendChild(questionInput);
-    
-        var difficultyInput = document.createElement('input');
-        difficultyInput.type = 'text';
-        difficultyInput.name = 'image_question_' + imageQuestionCounter + '_difficulty';
-        difficultyInput.placeholder = 'Enter difficulty level';
-        imageQuestionFields.appendChild(difficultyInput);
-    
-        var marksInput = document.createElement('input');
-        marksInput.type = 'number';
-        marksInput.name = 'image_question_' + imageQuestionCounter + '_marks';
-        marksInput.placeholder = 'Enter marks';
-        imageQuestionFields.appendChild(marksInput);
-    
-        var photoInput = document.createElement('input');
-        photoInput.type = 'file';
-        photoInput.name = 'image_question_' + imageQuestionCounter + '_photo';
-        imageQuestionFields.appendChild(photoInput);
-    
-        var answerInput = document.createElement('input');
-        answerInput.type = 'text';
-        answerInput.name = 'image_question_' + imageQuestionCounter + '_answer';
-        answerInput.placeholder = 'Enter answer';
-        imageQuestionFields.appendChild(answerInput);
-    
-        var lineBreak = document.createElement('br');
-        imageQuestionFields.appendChild(lineBreak);
-    }        
+                        // Append to the appropriate table based on question type
+                        if (question.type === 'Camera') {
+                            $('#camquestions').append(row);
+                        } else if (question.type === 'Image') {
+                            $('#imagequestions').append(row);
+                        }
+                    });
+                },
+                error: function(error) {
+                    console.log('Error fetching questions:', error);
+                }
+            });
+        }
+    }    
+
+    $('#topic').change(fetchQuestions); // Refetch when topic changes
+    $('#overall_difficulty').change(fetchQuestions); // Refetch when topic changes  
+});
+
+document.getElementById('quiz-form').addEventListener('submit', function(event) {
+    event.preventDefault(); // Prevent default form submission
+    updateQuestionCounts();
+    const formData = new FormData(this);
+
+    fetch('/add_lesson', {
+        method: 'POST',
+        body: formData,
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            console.log('Lesson Created:', data);
+            window.location.href = data.redirect_url; // Redirect based on response
+        } else {
+            console.error('Failed to create lesson:', data.message);
+        }
+    })
+    .catch(error => console.error('Error:', error));
+});
+
+function updateQuestionCounts() {
+    document.getElementById('num_text_questions').value = document.querySelectorAll('.txtquestion-form').length;
+    document.getElementById('num_image_questions').value = document.querySelectorAll('.imgquestion-form').length;
+}
+
 </script>
 {% endblock%}
