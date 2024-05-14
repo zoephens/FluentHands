@@ -9,18 +9,21 @@
     <div class="row">
         <div class="col-xl-12 mb-4">
             <!-- Unified container for quizzes -->
-            <div class="learning-materials-section" style="margin-left: 200px; margin-right: 200px">
+            <div class="learning-materials-section" style="margin-left: 400px; margin-right: 400px">
                 <div class="quizdiv">
                     <div class="quizzes-container">
                         <div class="quiz-header">
                             <h2>Quiz {{ quizzes[0].quiz_id }}: {{ quizzes[0].topic }}</h2>
                         </div>
                         <div id="question-container">
-
                         </div> <!-- Placeholder for questions -->
-                        <div class="navigation-buttons">
+                        <p id="label"></p>
+                        <!-- <div id="message-box" class="message-box" style="display: none;"></div> -->
+                        <div class="navigation-buttons" style="margin: 0">
                             <button class="prev-button"><i class="fa fa-chevron-left"></i> Previous</button>
-                            <button class="next-button"><i class="fa fa-chevron-right"></i> Next</button>
+                            <button class="try-button">Try Again <i class="fa-solid fa-rotate-right"></i></button>
+                            <button class="next-button">Next <i class="fa fa-chevron-right"></i></button>
+                            <button class="submit-button" style="display: none;">Submit <i class="fa-solid fa-check"></i></button>
                         </div>
                     </div>
                 </div>
@@ -37,8 +40,12 @@
     //Mediapipe tings
     const video = document.getElementById('video_feed');
     let label = document.getElementById('label');
+    const messageBox = document.getElementById('message-box'); // Make sure this ID matches your message box in HTML
     let value = ""
+    let try_counter = 0
     mediapipe = window;
+    let answers = []; // To store all answersz
+    let actual_answers = []; //To store all quiz question answers
 
     // Function to send keypoints data to the backend
     const sendKeypointsData = (data) => {
@@ -61,39 +68,13 @@
 
             if (value !== "") {
                 label.textContent = value
+                label.style.display = 'block'; // Show message
             }
         })
         .catch(error => {
             console.error('Error sending data:', error);
         });
     };
-
-    // MediaPipe setup
-    const { Holistic } = mediapipe;
-    const holistic = new Holistic({
-        locateFile: (file) => {
-            return `https://cdn.jsdelivr.net/npm/@mediapipe/holistic/${file}`;
-        },
-    });
-    holistic.setOptions({
-        upperBodyOnly: false,  // Include keypoints for face, both hands, and pose
-        smoothLandmarks: true,
-        minDetectionConfidence: 0.5,
-        minTrackingConfidence: 0.5,
-    });
-
-    // In browser camera
-    const camera = new mediapipe.Camera(video, {
-        onFrame: async () => {
-            await holistic.send({ image: video });
-        },
-        width: 750,
-        height: 500,
-    });
-    camera.start();        
-
-    // Function for keypoints
-    let sequence = []
 
     function extractKeypoints(results) {
         const pose = results.poseLandmarks ? results.poseLandmarks.map(res => [res.x, res.y, res.z, res.visibility]).flat() : Array(33 * 4).fill(0);
@@ -102,80 +83,238 @@
         const rh = results.rightHandLandmarks ? results.rightHandLandmarks.map(res => [res.x, res.y, res.z]).flat() : Array(21 * 3).fill(0);
         return pose.concat(face, lh, rh);
     }
-    
-    holistic.onResults((results) => {
-        if (results.faceLandmarks && results.poseLandmarks && (results.leftHandLandmarks || results.rightHandLandmarks)) {
-            let landmarksToSend = extractKeypoints(results);
-
-            sequence.push(landmarksToSend)
-            sequence = sequence.slice(sequence.length - 60)
-            //console.log(sequence)
-            if (sequence.length == 30)
-                sendKeypointsData(sequence);
-        }            
-    });
-
 
     // navigation
-    const quizzes = '{{ quizzes | tojson | safe }}';
-    if (quizzes.length > 0) { // Assuming there's at least one quiz object in the array
-        const quizData = quizzes[0]; // Access the first quiz object
-        let allQuestions = [
-            ...(Array.isArray(quizData.camera_questions) ? quizData.camera_questions : []),
-            ...(Array.isArray(quizData.image_questions) ? quizData.image_questions : [])
-        ];
+    const quizzesString = '{{ quizzes | tojson | safe }}';
+    const quizzes = JSON.parse(quizzesString); // Parse the JSON string into an object
 
-        let currentQuestionIndex = 0;
+    if (quizzes.length > 0) {
+        const quizData = quizzes[0]; // For example, using the first quiz
+        console.log(quizData.quiz_id);
+        let quiz_id = quizData.quiz_id;
+        let total_marks = quizData.total_marks;
+
+
+        function submitAll() {
+            fetch('/submit-answers', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ quiz_id: quiz_id, total_marks: total_marks, answers: answers, actual_answers: actual_answers }),
+            })
+            .then(response => response.json())
+            .then(data => {
+                console.log('Submission successful:', data);
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Answers submitted!',
+                    text: 'Your answers have been submitted successfully.'
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        window.location.href = '/'; // Redirect to the dashboard
+                    }
+                });
+            })
+            .catch(error => {
+                console.error('Error submitting answers:', error);
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Submission failed',
+                    text: 'There was a problem submitting your answers. Please try again.'
+                });
+            });
+        }
+
+        // Merge camera and image questions of the selected quiz
+        let allQuestions = [...quizData.camera_questions, ...quizData.image_questions];
+
+        let currentQuestionIndex = 0; // Initialize to the first question
+
+        function setupMediaPipe() {
+            let keypointsSubmitted = false;
+            const video = document.getElementById('video_feed');
+            const { Holistic } = mediapipe;
+            const holistic = new Holistic({
+                locateFile: (file) => `https://cdn.jsdelivr.net/npm/@mediapipe/holistic/${file}`,
+            });
+
+            holistic.setOptions({
+                upperBodyOnly: false,
+                smoothLandmarks: true,
+                minDetectionConfidence: 0.5,
+                minTrackingConfidence: 0.5,
+            });
+
+            const camera = new mediapipe.Camera(video, {
+                onFrame: async () => {
+                    await holistic.send({ image: video });
+                },
+                width: 750,
+                height: 500,
+            });
+            camera.start();
+
+            // Function to determine if the user is in frame
+            function checkVisibility(results) {
+                // Check for pose landmarks visibility
+                const poseVisible = results.poseLandmarks && results.poseLandmarks.some(landmark => landmark.visibility > 0.5);
+            
+                // Check for face landmarks
+                const faceVisible = results.faceLandmarks && results.faceLandmarks.length > 0;
+            
+                // Check for either set of hand landmarks
+                const handVisible = (results.leftHandLandmarks && results.leftHandLandmarks.length > 0) ||
+                                    (results.rightHandLandmarks && results.rightHandLandmarks.length > 0);
+            
+                // Return true only if all conditions are met
+                return poseVisible && faceVisible && handVisible;
+            }            
+
+            // Function for keypoints
+            let sequence = []
+
+            // Setup keypoint extraction and sending data
+            holistic.onResults((results) => {
+                let isVisible = checkVisibility(results); // Define this function based on your criteria
+                
+                if (!isVisible) {
+                    video.classList.remove('in-frame');
+                    video.classList.add('out-of-frame');
+                    //messageBox.textContent = 'Get in frame';
+                    //messageBox.style.display = 'block'; // Show message
+                } else {
+                    video.classList.remove('out-of-frame');
+                    video.classList.add('in-frame');
+                    //messageBox.style.display = 'none'; // Hide message
+
+                    if (!keypointsSubmitted) {
+                        let landmarksToSend = extractKeypoints(results);
+                        sequence.push(landmarksToSend);
+                        sequence = sequence.slice(-60);
+
+                        if (sequence.length === 30) {
+                            sendKeypointsData(sequence);
+                            keypointsSubmitted = true; // Prevent further submissions
+                        }
+                    }
+                }            
+            });
+        }
 
         function displayQuestion(index) {
-            const question = allQuestions[index];
-            const quizContainer = document.getElementById('question-container');
-            let contentHTML = '';
-            console.log()
-            if (question.type === 'Camera') {
-                contentHTML = `<div class="question">
-                    <h3>Question ${index + 1}: ${question.text}</h3>
-                    <video id="video_feed" autoplay style="width: 100%; height: auto;"></video>
-                    <p>Mark(s): ${question.marks}</p>
-                </div>`;
-            } else if (question.type === 'Image') {
-                contentHTML = `<div class="question">
-                    <h3>Question ${index + 1}: ${question.text}</h3>
-                    <img src="../static/images/${question.image_url}" alt="Quiz Image" style="max-width: 100%; height: auto;">
-                    <p>Mark(s): ${question.marks}</p>
-                </div>`;
+            if (index < 0 || index >= allQuestions.length) {
+                console.error('Question index out of range:', index);
+                return; // Exit if index is invalid
             }
 
-            quizContainer.innerHTML = contentHTML;
+            const question = allQuestions[index];
+            const questionContainer = document.getElementById('question-container');
+            let contentHTML = '';
+
+            actual_answers.push({"question_id": question.question_id, "actual_answer": question.answer, "marks": question.marks })
+
+            if (question.type === 'Camera') {
+                contentHTML = `<div class="question">
+                    <p class="question-text" style="color: black">Question ${index + 1}: ${question.text}</p>
+                    <video id="video_feed" autoplay style="width: 100%; height: auto;"></video>
+                    <p>Mark(s): ${question.marks}</p>
+                    <!-- <button id="capture-button">Capture Image</button> -->
+                </div>`;
+
+                questionContainer.innerHTML = contentHTML;
+                setupMediaPipe(); // Setup MediaPipe for camera questions
+            } else if (question.type === 'Image') {
+                contentHTML = `<div class="question">
+                    <p class="question-text" style="color: black">Question ${index + 1}: ${question.text}</p>
+                    <img src="../static/images/${question.image_url}" alt="Quiz Image" style="max-width: 100%; height: auto;">
+                    <div class="answer-input">
+                        <input type="text" placeholder="Type your answer" class="answer-bar" id="answer-${question.question_id}">
+                    </div>
+                    <p>Mark(s): ${question.marks}</p>
+                </div>`;
+                questionContainer.innerHTML = contentHTML;
+                // Stop MediaPipe processing if it's not a camera question
+            }
+
             updateNavigationButtons();
         }
 
-    function updateNavigationButtons() {
-        document.querySelector('.prev-button').disabled = currentQuestionIndex === 0;
-        document.querySelector('.next-button').disabled = currentQuestionIndex === allQuestions.length - 1;
-    }
-    
-    function nextQuestion() {
-        if (currentQuestionIndex < allQuestions.length - 1) {
-            currentQuestionIndex++;
-            displayQuestion(currentQuestionIndex);
+        function saveAnswer(index) {
+            const question = allQuestions[index];
+            let answerInput = document.getElementById(`answer-${question.question_id}`);
+            if (question.type === 'Image' && answerInput.value!=[]) {
+                answers.push({ "question_id": question.question_id, "answer": answerInput.value, "tries": try_counter });
+                //answers.push({ questionId: question.id, answer: answerInput.value });
+                console.log(answers)
+            } else if (question.type === 'Camera' && value!=[]) {
+                // Assume keypoints or similar data is handled elsewhere
+                answers.push({ "question_id": question.question_id, "answer": value, "tries": try_counter}); // Placeholder
+                console.log(answers)
+                value = ""
+            }
+            else {
+                return false;
+            }
+            return true;
         }
-    }
 
-    function prevQuestion() {
-        if (currentQuestionIndex > 0) {
-            currentQuestionIndex--;
-            displayQuestion(currentQuestionIndex);
+        function updateNavigationButtons() {
+            // Update button visibility
+            if (currentQuestionIndex >= allQuestions.length - 1) {
+                document.querySelector('.next-button').style.display = 'none';
+                document.querySelector('.submit-button').style.display = 'block';
+            } else {
+                document.querySelector('.next-button').style.display = 'block';
+                document.querySelector('.submit-button').style.display = 'none';
+            }
+
+            document.querySelector('.prev-button').disabled = currentQuestionIndex === 0;
+            //document.querySelector('.next-button').disabled = currentQuestionIndex >= allQuestions.length - 1;
         }
-    }
 
-    // Initialize with the first question
-    document.querySelector('.next-button').addEventListener('click', nextQuestion);
-    document.querySelector('.prev-button').addEventListener('click', prevQuestion);
+        function nextQuestion() {
+            if (saveAnswer(currentQuestionIndex)){ // Save answer before moving on
+                label.style.display = 'none';
+                if (currentQuestionIndex < allQuestions.length - 1) {
+                    currentQuestionIndex++;
+                    try_counter = 0;
+                    displayQuestion(currentQuestionIndex);
+                }
+            }
+        }
 
-    document.addEventListener('DOMContentLoaded', () => {
-        displayQuestion(currentQuestionIndex);
-    });
+        function submitAnswers() {
+            saveAnswer(currentQuestionIndex); // Save the last answer
+            submitAll(); // Submit all answers at the end
+        }
+        
+        function prevQuestion() {
+            label.style.display = 'none';
+            if (currentQuestionIndex > 0) {
+                currentQuestionIndex--;
+                displayQuestion(currentQuestionIndex);
+            }
+        }
+
+        function retryQuestion() {
+            keypointsSubmitted = false; // Allow keypoints collection again
+            sequence = []; // Clear previously collected keypoints
+            label.textContent = ""; // Optionally clear any results shown to the user
+            try_counter++;
+            // Restart the camera and MediaPipe processing only if needed
+            // This might depend on whether you stop these processes when keypoints are submitted
+            setupMediaPipe(); // This reinitializes the MediaPipe setup and starts camera processing
+        }        
+
+        document.querySelector('.next-button').addEventListener('click', nextQuestion);
+        document.querySelector('.submit-button').addEventListener('click', submitAnswers);
+        document.querySelector('.prev-button').addEventListener('click', prevQuestion);
+        document.querySelector('.try-button').addEventListener('click', retryQuestion);
+
+        document.addEventListener('DOMContentLoaded', () => {
+            displayQuestion(currentQuestionIndex); // Display the first question on load
+        });
     } else {
         console.error('No quiz data available');
     }

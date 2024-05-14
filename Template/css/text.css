@@ -1,0 +1,520 @@
+/* Global styles */
+body, html {
+    font-family: 'Open Sans';
+    background: #f0f4f8;
+    color: #354892;
+    margin: 0;
+}
+
+.container {
+    width: 90%;
+    margin: 20px auto;
+}
+/* Main content area should fill available space, excluding the sidebar */
+#content-wrapper {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    padding: 20px;
+    background-color: #f8f9fc; /* Background color of the main content area */
+}
+
+/* Adjust the learning and leaderboard sections to fill the width */
+.container-fluid {
+    flex: 1;
+    margin: 0; /* Remove outer margin */
+    padding: 20px; /* Padding around the content */
+    width: 100%;
+}
+
+.lessondiv, .learning-materials-container {
+    width: 100%; /* Make both sections fill the width */
+    background-color: #ffffff;
+    border: 1px solid #d1d1d1;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    border-radius: 8px;
+    margin-bottom: 20px; /* Space between sections */
+    padding: 20px;
+}
+
+
+
+th, td {
+    padding: 10px;
+    text-align: left;
+    border: 1px solid #aaaaaa;
+}
+
+
+
+h1, h2 {
+    margin: 0;
+    color: #333;
+}
+
+/* Header styles */
+h3 {
+    color: #657CD5;
+    font-size: medium;
+    text-align: center;
+    margin-top: 0; /* Ensure consistent margins */
+}
+
+
+.search-box input[type="search"] {
+    padding: 8px;
+    width: 300px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    
+}
+
+/* Table styles */
+.table {
+    background-color: #ffffff;
+    padding: 20px;
+    margin-top: 20px;
+    width: 100%; /* Ensure tables stretch across the container */
+    border-collapse: collapse;
+    margin-bottom: 20px;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+
+    
+}
+
+
+th {
+    background-color: #71788B;
+    color: #FFFFFF;
+}
+
+td {
+    background-color: #FFFFFF;
+    color: #354892;
+}
+
+button {
+    margin-top: 10px;
+    background-color: #657cd5;
+    color: #ffffff;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+    padding: 10px;
+    justify-content: center;
+    align-items: center;
+}
+
+
+button:hover {
+    background-color: #4c61b5;
+}
+
+/* Sidebar styles */
+.navbar {
+    background-color: #8A9DE6;
+    color: #ffffff;
+    padding: 10px 20px;
+    border-bottom: 1px solid #cccccc;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.Studentscontainer {
+    background-color: #ffffff;
+    padding: 20px;
+    border: 1px solid #d1d1d1;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    border-radius: 8px;
+}
+
+.search-box {
+    float: right;
+    position: relative;
+}
+
+/* Navbar styles */
+.navbar {
+    background-color: #8A9DE6; /* Adjust color according to your branding */
+    color: #ffffff;
+    padding: 10px 20px;
+    border-bottom: 1px solid #cccccc;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.navbar-content {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+}
+
+.logo-room-code {
+    display: flex;
+    align-items: center;
+}
+
+.navbar-logo {
+    margin-right: 20px;
+}
+
+.logo-image {
+    width: 50px; /* Adjust size as necessary */
+    height: 50px;
+    border-radius: 50%; /* Optional rounded logo */
+}
+
+.room-code {
+    font-size: 18px;
+    font-weight: bold;
+}
+
+.home-link {
+    text-align: center;
+    flex-grow: 1;
+}
+
+.home-link .home {
+    color: #ffffff;
+    text-decoration: none;
+    padding: 8px 15px;
+    background-color: #354892; /* Adjust color for contrast */
+    border-radius: 5px;
+}
+
+.home-link .home:hover {
+    background-color: #25386d; /* Darker color on hover */
+}
+
+.welcome-message {
+    font-size: 16px;
+    font-weight: bold;
+}
+
+/* Learning Materials Section */
+.learning-materials-section {
+    margin-top: 20px;
+    background-color: #ffffff;
+    border: 1px solid #d1d1d1;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    border-radius: 8px;
+    padding: 20px;
+    text-align: left;
+}
+
+.material-header h2 {
+    font-size: 20px;
+    margin-top: 0;
+}
+
+.material-header p {
+    font-size: 14px;
+    color: #555;
+    margin-top: 5px;
+}
+
+
+
+.lesson-card:hover {
+    background-color: #f1f4ff;
+}
+
+.navigate {
+    background-color: #dddddd;
+}
+
+
+.lesson-card p {
+    color: #8A9DE6;
+    font-weight: bold;
+}
+
+.lessondiv {
+    background-color: #ffffff;
+    padding: 20px;
+    margin-top: 20px;
+    border: 1px solid #d1d1d1;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.lessons-container {
+    overflow-x: auto;
+    white-space: nowrap;
+    padding-bottom: 10px; /* To ensure cards don't get cut off */
+}
+
+.lessons {
+    display: inline-flex;
+    gap: 20px;
+    padding-left: 20px;
+}
+
+.lesson-card {
+    flex: 0 0 auto;
+    width: 200px; /* Adjust to your preference */
+    padding: 20px;
+    background-color: white;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    text-align: center;
+}
+
+.lesson-card.navigate h3 {
+    color: #007bff;
+    font-weight: bold;
+}
+
+.quiz-card p {
+    color: #8A9DE6;
+    font-weight: bold;
+}
+
+.quizdiv {
+    background-color: #ffffff;
+    padding: 20px;
+    margin-top: 20px;
+    border: 1px solid #d1d1d1;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.quizzes-container {
+    overflow-x: auto;
+    white-space: nowrap;
+    padding-bottom: 10px; /* To ensure cards don't get cut off */
+}
+.quizzes {
+    display: flex;
+    gap: 20px;
+    padding-left: 20px;
+    padding-block: 20px;
+}
+
+.quiz-card {
+    flex: 0 0 auto;
+    width: 1000px; /* Adjust to your preference */
+    padding: 20px;
+    background-color: #d3dce8;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    flex-direction: column;
+}
+
+.quiz-card button {
+    margin-top: auto; /* Align button to the bottom within the container */
+    align-self: flex-end; /* Align button to the right */
+    background-color: #657cd5;
+    color: #ffffff;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+#quiz-button{
+    float: right;
+}
+
+/* Outer container */
+.learning-materials-container {
+    background-color: #ffffff;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    margin-top: 20px;
+}
+
+/* Form layout */
+.lesson-form {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+/* Header styles */
+h3 {
+    color: #657CD5;
+    font-size: medium;
+    text-align: center;
+}
+
+/* Divider */
+hr {
+    border: none;
+    height: 1px;
+    background-color: #ccc;
+    margin: 10px 0;
+}
+
+/* Top row alignment */
+.lesson-top-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 15px;
+    align-items: center;
+}
+
+/* Custom Questions alignment */
+.custom-questions {
+    display: flex;
+    gap: 15px;
+    align-items: center;
+    margin-top: 1opx;
+}
+
+/* Sections within the form */
+.lesson-section {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+/* Input field styles */
+input[type="text"], input[type="date"], select {
+    padding: 8px;
+    border: 1px solid #535765; /* Blue border */
+    border-radius: 8px; /* Rounded corners */
+    background-color: #e6ecff; /* Light blue */
+    color: #4e5261;
+    outline: none;
+    width: 100%;
+}
+
+input[type="text"]::placeholder,
+input[type="date"]::placeholder {
+    color: black; /* Black placeholder text */
+}
+
+label {
+    margin-bottom: 4px;
+    color: #555865;
+}
+
+/* Button styles */
+button.add-btn, button.submit-btn {
+    background-color: #657cd5;
+    color: #ffffff;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+    align-self: flex-end;
+}
+
+button.add-btn:hover {
+    background-color: #4c61b5;
+}
+
+button.submit-btn {
+    background-color: #28a745;
+    padding: 10px;
+    justify-content: center;
+    align-items: center;
+
+}
+
+/* Make the submit button centered */
+.center-submit {
+    align-self: center; /* Centered horizontally */
+    margin-top: 15px;
+    display: flex; /* Flex container */
+    justify-content: center; /* Center horizontally */
+    align-items: center; /* Center vertically */
+}
+
+
+button.submit-btn:hover {
+    background-color: #218838;
+}
+
+/* Align inputs horizontally like the provided image */
+.question-row {
+    display: flex;
+    gap: 20px; /* Space between questions */
+    flex-wrap: wrap;
+    margin-bottom: 15px;
+}
+
+/* Organize question container vertically */
+.question-container {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+
+
+.question-label {
+    width: 760px; /* Adjust width */
+}
+
+.answer-label {
+    width: 80px;
+}
+
+/* Make the submit button centered */
+.center-submit {
+    align-self: center; /* Centered horizontally */
+    margin-top: 15px;
+}
+
+/* Adjust color of photo input text */
+#photo {
+    color: white;
+
+}
+/* Custom Questions alignment */
+.custom-questions {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    margin-top: 10px; /* Add some spacing from previous element */
+}
+
+.custom-text {
+    font-size: 12px; /* Adjust to desired size */
+    color: #6c757d; /* Adjust to your preferred color */
+}
+
+/* Styling for the custom radio buttons */
+input[type="radio"] {
+    appearance: none; /* Removes the default radio button style */
+    -webkit-appearance: none; /* For compatibility with WebKit-based browsers */
+    width: 18px; /* Adjust size */
+    height: 18px; /* Adjust size */
+    border: 2px solid #657cd5; /* Border color and width */
+    border-radius: 50%; /* Makes it circular */
+    outline: none;
+    cursor: pointer;
+    background-color: white;
+    position: relative;
+    display: inline-block;
+    vertical-align: middle;
+}
+
+input[type="radio"]:checked {
+    background-color: #657cd5; /* Fill color when selected */
+    border: 2px solid #657cd5; /* Matches the fill color */
+    position: relative;
+}
+
+input[type="radio"]:checked::before {
+    content: "";
+    width: 8px; /* Adjust inner circle size */
+    height: 8px; /* Adjust inner circle size */
+    background-color: white; /* Inner circle color */
+    border-radius: 50%;
+    position: absolute;
+    top: 2px; /* Adjust positioning inside radio button */
+    left: 2px;
+}

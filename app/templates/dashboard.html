@@ -135,22 +135,24 @@
     <!-- Centered wrapper for Learning Materials -->
     <div class="container-fluid lessondiv">
         <div class="lessons-container">
-            <div class="thelessonbackground">
+            <div class="thelessonbackground container">
                 <h1>Learning Materials</h1>
                 <h2>Lesson Plans</h2>
-                {% for quiz in quizzes %}
-                    <div class="lessons">
-                        <div class="lesson-card" style="cursor: pointer" onclick="showQuestions()">
-                            <p style="margin-top: 20px">Lesson {{ quiz.quiz_id}}</p>
+                <div class="row">
+                    {% for quiz in quizzes %}
+                        <div class="col-md-4 mb-4"> <!-- Adjust the column size as needed -->
+                            <div class="lesson-card" style="cursor: pointer" onclick="showQuestions()">
+                                <p style="margin-top: 20px">{{ quiz.topic }}: Lesson {{ quiz.quiz_id }}</p>
+                            </div>
                         </div>
-                    </div>
-                {% endfor %}
-            </div>
+                    {% endfor %}
+                </div>
+            </div>            
             <br>
         </div>
 
         <div class="align-right">
-            <a href="#">
+            <a href="{{ url_for('add_lesson') }}">
                 <button>Add New</button>
             </a>
         </div>
@@ -219,22 +221,20 @@
                         <!-- quiz container -->
                         <div class="quizzes-container">
                             {% for quiz in quizzes %}
-                                <div class="quiz-card mb-4">
-                                    <h3>
-                                        <div class="quiz-tick-box">
-                                            <i class="fa-regular fa-square-check"></i>
-                                            <!-- <i class="fa fa-square-check"></i> Update as necessary -->
-                                        </div>
-                                        Quiz {{quiz.quiz_id}} - {{ quiz.topic }} <!-- Assuming there is a title field -->
-                                    </h3>
-                                    <p>Total Marks: {{ quiz.total_marks }}</p>
-                                    <p>Difficulty: {{ quiz.level }}</p>
-                                    <p>Opens: {{ quiz.due_date.strftime('%B %d, %Y') }}</p>
-                                    <button class="start-quiz-button" onclick="redirectToQuiz('{{ quiz.quiz_id }}')">Start Quiz</button>
-                                </div>
+                            <div id="quiz-card-{{ quiz.quiz_id }}" class="quiz-card mb-4">
+                                <h3>
+                                    <div class="quiz-tick-box">
+                                        <i class="fa-regular fa-square-check"></i>
+                                    </div>
+                                    Quiz {{ quiz.quiz_id }} - {{ quiz.topic }}
+                                </h3>
+                                <p style="padding-top: 50px">Total Marks: {{ quiz.total_marks }}</p>
+                                <p>Difficulty: {{ quiz.level }}</p>
+                                <p>Opens: {{ quiz.due_date }}</p>
+                                <button id="start-quiz-button-{{ quiz.quiz_id }}" class="start-quiz-button" onclick="redirectToQuiz(`{{ quiz.quiz_id }}`)">Start Quiz</button>
+                            </div>                                                    
                             {% endfor %}
                         </div>
-
                     </div>
                 </div>
             </div>
@@ -256,11 +256,51 @@
         // Redirect to the quiz page
         window.location.href = `/get_quiz/${quizId}`;
     }    
+    
+    function checkQuizCompletion(quiz_id) {
+        fetch(`/check_quiz_completion/${quiz_id}`)
+            .then(response => response.json())
+            .then(data => {
+                const quizCard = document.getElementById(`quiz-card-${quiz_id}`);
+                const startButton = document.getElementById(`start-quiz-button-${quiz_id}`);
+                if (data.completed) {
+                    startButton.disabled = true;
+                    startButton.innerText = 'Completed';
+                    
+                    startButton.classList.add('button-completed');
+                    
+                    quizCard.querySelector('.quiz-tick-box i').classList.add('fa', 'fa-square-check');
+                    quizCard.querySelector('.quiz-tick-box i').classList.remove('fa-regular');
+                } else {
+                    // Ensure button is ready for redirection and not disabled
+                    startButton.onclick = function() { redirectToQuiz(quiz_id); };
+                }
+            })
+            .catch(error => console.error('Error checking quiz completion:', error));
+    }
 
     $(document).ready(function() {
         const roomcode = '{{ room_code }}';
         var currentUserId = '{{ id_num }}';  
         
+        //var dateStr = document.getElementById('dateField').innerText.replace('Opens: ', '');
+        //var dateObj = new Date(dateStr);
+        //var options = { year: 'numeric', month: 'long', day: 'numeric' };
+        //document.getElementById('dateField').innerText = 'Opens: ' + dateObj.toLocaleDateString('en-US', options);
+        const quizzesString = '{{ quizzes | tojson | safe }}';
+        const quizzes = JSON.parse(quizzesString); // Parse the JSON string into an object
+        let quiz_count = 0
+        
+        
+        quizzes.forEach(quiz => {
+            console.log(quiz.quiz_id);  // Logging the quiz ID for debugging
+            let quiz_id = quiz.quiz_id;
+            let total_marks = quiz.total_marks;
+            quiz_count++;
+            checkQuizCompletion(quiz_id);
+        });
+        
+
         // Gets all students in a course room
         $.getJSON(`/get_students/${roomcode}`, function(students) {
             var tableContent = '';
@@ -327,7 +367,7 @@
             data.forEach(function(item) {
                 // Fetch quiz count for each participant
                 $.getJSON(`/get_quiz_count/${item.participantID}`, function(quizData) {
-                    var participation = ((quizData.quiz_count / admin_quiz_count) * 100).toFixed(2);
+                    var participation = ((quizData.quiz_count / quiz_count) * 100).toFixed(2);
 
                     if (isAdmin) {
                         // Admin view: Include Rank, Student ID, Total Points, and Participation
@@ -379,6 +419,7 @@
                     document.getElementById('top_scorer').textContent = 'None';
                 });
             }
+        
     });
 </script>
 {% endblock%}
