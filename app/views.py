@@ -294,19 +294,25 @@ def generate_progress_report(access_code, students_grades):
 
     # Add style to table
     style = TableStyle([
-        ('BACKGROUND', (0, 0), (-1, 0), colors.HexColor('#AACCFF')),  # Header background color
-        ('TEXTCOLOR', (0, 0), (-1, 0), colors.black),  # Header text color
-        ('ALIGN', (0, 0), (-1, -1), 'CENTER'),  # Center alignment for all cells
-        ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),  # Font for header row
-        ('BOTTOMPADDING', (0, 0), (-1, 0), 12),  # Bottom padding for header row
-        ('GRID', (0, 0), (-1, -1), 1, colors.white)  # Grid lines color
+        ('BACKGROUND', (0, 0), (-1, 0), colors.HexColor('#657CD5')),  
+        ('TEXTCOLOR', (0, 0), (-1, 0), colors.white),  
+        ('ALIGN', (0, 0), (-1, -1), 'CENTER'), 
+        ('VALIGN', (0, 0), (-1, 0), 'MIDDLE'),
+        ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),  
+        ('BOTTOMPADDING', (0, 0), (-1, 0), 12),  
+        ('GRID', (0, 0), (-1, -1), 2.5, colors.white) 
     ])
 
     table.setStyle(style)
 
+    page_width = letter[0]  
+    table_width = 400  
+    midpoint = (page_width - table_width) / 2  
+
+
     # Position table on the canvas
     table.wrapOn(c, 400, 200)
-    table.drawOn(c, 100, 200)  # Adjust the coordinates as needed
+    table.drawOn(c, midpoint + 25, 625) 
 
     # Save canvas
     c.save()
