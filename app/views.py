@@ -335,6 +335,9 @@ def get_progress_report(access_code):
     except FileNotFoundError:
         return "PDF file not found", 404
 
+
+
+
 @app.route('/get_students/<room_code>', methods=['GET'])
 def get_students(room_code):
     # Join Participant and Enrol tables, group by participantID, calculate total score
