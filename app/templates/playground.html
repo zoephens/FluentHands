@@ -1,0 +1,150 @@
+{% extends 'base.html' %}
+
+{% block css %} 
+<link rel="stylesheet" href="{{ url_for('static', filename='css/text.css') }}">
+{% endblock%}
+
+{% block dashboard_content %}
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-xl-12 mb-4">
+            <!-- Unified container for quizzes -->
+            <div class="learning-materials-section" style="margin-left: 400px; margin-right: 400px">
+                <div class="quizdiv">
+                    <div class="quizzes-container">
+                        <div class="quiz-header">
+                        </div>
+                        <div id="container">
+                            <video id="video_feed" autoplay style="width: 100%; height: auto;"></video>
+                        </div> <!-- Placeholder for questions -->
+                        <p id="label"></p>
+                        <!-- <div id="message-box" class="message-box" style="display: none;"></div> -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block js %} 
+<script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@mediapipe/holistic@0.5.1675471629/holistic.min.js"></script>
+<script>
+    const video = document.getElementById('video_feed');
+    const label = document.getElementById('label');
+    const messageBox = document.getElementById('message-box'); // Adjust this ID if you have a message box in the HTML
+    let value = "";
+    let keypointsSubmitted = false;  // This will now be used differently
+    mediapipe = window;
+
+    // Function to send keypoints data to the backend
+    const sendKeypointsData = (data) => {
+        fetch('http://127.0.0.1:8080/keypoints', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(data),
+        })
+        .then(response => response.json())
+        .then(data => {
+            console.log('Data sent:', data);
+            value = data.predicted_label;
+            
+            if (value !== "") {
+                label.textContent = value;
+                label.style.display = 'block'; // Show the label
+            }
+        })
+        .catch(error => {
+            console.error('Error sending data:', error);
+        });
+    };
+
+    // Function to continuously check and send keypoints data
+    function continuouslySendKeypoints(sequence) {
+        if (sequence.length >= 30) {
+            sendKeypointsData(sequence);
+            sequence = [];  // Reset sequence after sending
+        }
+    }
+
+    // Setup MediaPipe and handle camera frames
+    function setupMediaPipe() {
+        const { Holistic } = mediapipe;
+        const holistic = new Holistic({
+            locateFile: (file) => `https://cdn.jsdelivr.net/npm/@mediapipe/holistic/${file}`,
+        });
+
+        holistic.setOptions({
+            upperBodyOnly: false,
+            smoothLandmarks: true,
+            minDetectionConfidence: 0.5,
+            minTrackingConfidence: 0.5,
+        });
+
+        const camera = new mediapipe.Camera(video, {
+            onFrame: async () => {
+                await holistic.send({ image: video });
+            },
+            width: 750,
+            height: 500,
+        });
+        camera.start();
+
+        let sequence = [];  // Collect keypoints in a sequence
+
+        function checkVisibility(results) {
+            // Check for pose landmarks visibility
+            const poseVisible = results.poseLandmarks && results.poseLandmarks.some(landmark => landmark.visibility > 0.5);
+        
+            // Check for face landmarks
+            const faceVisible = results.faceLandmarks && results.faceLandmarks.length > 0;
+        
+            // Check for either set of hand landmarks
+            const handVisible = (results.leftHandLandmarks && results.leftHandLandmarks.length > 0) ||
+                                (results.rightHandLandmarks && results.rightHandLandmarks.length > 0);
+        
+            // Return true only if all conditions are met
+            return poseVisible && faceVisible && handVisible;
+        }            
+
+        // Setup keypoint extraction and sending data
+        holistic.onResults((results) => {
+            let isVisible = checkVisibility(results); // Define this function based on your criteria
+            
+            if (!isVisible) {
+                video.classList.remove('in-frame');
+                video.classList.add('out-of-frame');
+                //messageBox.textContent = 'Get in frame';
+                //messageBox.style.display = 'block'; // Show message
+            } else {
+                video.classList.remove('out-of-frame');
+                video.classList.add('in-frame');
+                //messageBox.style.display = 'none'; // Hide message
+
+                let landmarksToSend = extractKeypoints(results);
+                sequence.push(landmarksToSend);
+                sequence = sequence.slice(-60);
+
+                if (sequence.length === 30) {
+                    sendKeypointsData(sequence);
+                }
+                
+            }            
+        });
+    }
+
+    // Extract keypoints from the video stream
+    function extractKeypoints(results) {
+        const pose = results.poseLandmarks ? results.poseLandmarks.map(res => [res.x, res.y, res.z, res.visibility]).flat() : Array(33 * 4).fill(0);
+        const face = results.faceLandmarks ? results.faceLandmarks.map(res => [res.x, res.y, res.z]).flat() : Array(468 * 3).fill(0);
+        const lh = results.leftHandLandmarks ? results.leftHandLandmarks.map(res => [res.x, res.y, res.z]).flat() : Array(21 * 3).fill(0);
+        const rh = results.rightHandLandmarks ? results.rightHandLandmarks.map(res => [res.x, res.y, res.z]).flat() : Array(21 * 3).fill(0);
+        return pose.concat(face, lh, rh);
+    }
+
+    setupMediaPipe();  // Start processing keypoints
+</script>
+{% endblock %}

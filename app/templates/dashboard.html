@@ -135,22 +135,25 @@
     <!-- Centered wrapper for Learning Materials -->
     <div class="container-fluid lessondiv">
         <div class="lessons-container">
-            <div class="thelessonbackground">
+            <div class="thelessonbackground container">
                 <h1>Learning Materials</h1>
                 <h2>Lesson Plans</h2>
-                {% for quiz in quizzes %}
-                    <div class="lessons">
-                        <div class="lesson-card" style="cursor: pointer" onclick="showQuestions()">
-                            <p style="margin-top: 20px">Lesson {{ quiz.quiz_id}}</p>
+                <div class="row">
+                    {% for quiz in quizzes %}
+                        <div class="col-md-4 mb-4"> <!-- Adjust the column size as needed -->
+                            <div class="lesson-card" style="cursor: pointer; text-align: left; background-color: rgb(230, 228, 228)" onclick="showQuestions()">
+                                <p style="margin-top: 20px">Lesson {{ quiz.quiz_id }}: {{ quiz.topic }}</p>
+                                <p class="dateField">{{ quiz.due_date }}</p>
+                            </div>
                         </div>
-                    </div>
-                {% endfor %}
-            </div>
+                    {% endfor %}
+                </div>
+            </div>            
             <br>
         </div>
 
         <div class="align-right">
-            <a href="#">
+            <a href="{{ url_for('add_lesson') }}">
                 <button>Add New</button>
             </a>
         </div>
@@ -162,7 +165,12 @@
         <div class="insidestudent">
             <div class="Studentheader">
                 <h1>Classroom</h1>
-                <div class="search-box"><input type="search" id="studentSearch" placeholder="Search Classmates..."> </div>
+                <div class="search-box">
+                    <div class="input-icon-container">
+                        <div class="search-box"><input type="search" id="studentSearch" placeholder="Search Classmates..."> </div>
+                        <i class="fa-solid fa-magnifying-glass search-icon"></i>
+                    </div>
+                </div>
             </div>
             
             <section class="table" id="Leaderboard">
@@ -172,6 +180,7 @@
                         <tr>
                             <th>First Name</th>
                             <th>Last Name</th>
+                            <th>Rank</th>
                         </tr>
                     </thead>
                     <tbody id="classmateTableBody">
@@ -208,7 +217,7 @@
     </div>
     <br>
     <!-- Centered wrapper for Learning Materials -->
-    <div class="container-fluid" style="padding: 0">
+    <div class="container-fluid" id="Quizzes" style="padding: 0">
         <div class="row">
             <div class="col-xl-12 mb-4">
                 <div class="learning-materials-section">
@@ -219,22 +228,20 @@
                         <!-- quiz container -->
                         <div class="quizzes-container">
                             {% for quiz in quizzes %}
-                                <div class="quiz-card mb-4">
-                                    <h3>
-                                        <div class="quiz-tick-box">
-                                            <i class="fa-regular fa-square-check"></i>
-                                            <!-- <i class="fa fa-square-check"></i> Update as necessary -->
-                                        </div>
-                                        Quiz {{quiz.quiz_id}} - {{ quiz.topic }} <!-- Assuming there is a title field -->
-                                    </h3>
-                                    <p>Total Marks: {{ quiz.total_marks }}</p>
-                                    <p>Difficulty: {{ quiz.level }}</p>
-                                    <p>Opens: {{ quiz.due_date.strftime('%B %d, %Y') }}</p>
-                                    <button class="start-quiz-button" onclick="redirectToQuiz('{{ quiz.quiz_id }}')">Start Quiz</button>
-                                </div>
+                            <div id="quiz-card-{{ quiz.quiz_id }}" class="quiz-card mb-4">
+                                <h3>
+                                    <div class="quiz-tick-box">
+                                        <i class="fa-regular fa-square-check"></i>
+                                    </div>
+                                    Quiz {{ quiz.quiz_id }} - {{ quiz.topic }}
+                                </h3>
+                                <p id="marks-{{ quiz.quiz_id }}" style="padding-top: 50px">Total Marks: {{ quiz.total_marks }}</p>
+                                <p>Difficulty: {{ quiz.level }}</p>
+                                <p class="dateField">Opens: {{ quiz.due_date }}</p>
+                                <button id="start-quiz-button-{{ quiz.quiz_id }}" class="start-quiz-button" onclick="redirectToQuiz(`{{ quiz.quiz_id }}`)">Start Quiz</button>
+                            </div>                                                    
                             {% endfor %}
                         </div>
-
                     </div>
                 </div>
             </div>
@@ -242,9 +249,7 @@
     </div>
     {% endif %}
 </div>
-
 <!-- End of Main Content -->
-
 {% endblock %}
 
 {% block js %} 
@@ -256,11 +261,66 @@
         // Redirect to the quiz page
         window.location.href = `/get_quiz/${quizId}`;
     }    
+    
+    function checkQuizCompletion(quiz_id) {
+        fetch(`/check_quiz_completion/${quiz_id}`)
+            .then(response => response.json())
+            .then(data => {
+                const quizCard = document.getElementById(`quiz-card-${quiz_id}`);
+                const startButton = document.getElementById(`start-quiz-button-${quiz_id}`);
+                //const marks = document.getElementById(`marks-${quiz_id}`)
+
+                if (data.completed) {
+                    startButton.disabled = true;
+                    startButton.innerText = 'Completed';
+
+                    //marks.innerText = `Total Marks: points/${total_marks}`
+                    
+                    startButton.classList.add('button-completed');
+                    
+                    quizCard.querySelector('.quiz-tick-box i').classList.add('fa', 'fa-square-check');
+                    quizCard.querySelector('.quiz-tick-box i').classList.remove('fa-regular');
+                } else {
+                    // Ensure button is ready for redirection and not disabled
+                    startButton.onclick = function() { redirectToQuiz(quiz_id); };
+                }
+            })
+            .catch(error => console.error('Error checking quiz completion:', error));
+    }
 
     $(document).ready(function() {
+        var isAdmin = "{{ is_admin }}" === "True"
         const roomcode = '{{ room_code }}';
         var currentUserId = '{{ id_num }}';  
+
+        const quizzesString = '{{ quizzes | tojson | safe }}';
+        const quizzes = JSON.parse(quizzesString); // Parse the JSON string into an object
+        let quiz_count = 0
         
+        quizzes.forEach(quiz => {
+            //console.log(quiz.quiz_id);  // Logging the quiz ID for debugging
+            let quiz_id = quiz.quiz_id;
+            let total_marks = quiz.total_marks;
+            quiz_count++;
+            if(isAdmin == false){
+                checkQuizCompletion(quiz_id);
+            }
+
+             // Getting the current text, removing 'Opens: ', and converting it to a Date object
+            var dateStr = document.getElementsByClassName('dateField')[0].innerText.replace('Opens: ', '');
+            var dateObj = new Date(dateStr);
+
+            // Options for formatting the date string
+            var options = { year: 'numeric', month: 'long', day: 'numeric' };
+
+            // Loop through all elements with the class 'dateField' and update their content
+            var dateFields = document.getElementsByClassName('dateField');
+            for (var i = 0; i < dateFields.length; i++) {
+                dateFields[i].innerText = 'Opens: ' + dateObj.toLocaleDateString('en-US', options);
+            }
+        });
+        
+
         // Gets all students in a course room
         $.getJSON(`/get_students/${roomcode}`, function(students) {
             var tableContent = '';
@@ -290,6 +350,7 @@
                 tableContent += `<tr class="${highlightClass}">
                     <td>${student.first_name}</td>
                     <td>${student.last_name}</td>
+                    <td>${student.level}</td>
                 </tr>`;
             });
             $('#classmateTableBody').html(tableContent);
@@ -299,14 +360,18 @@
         admin_quiz_count = 0;
         $.getJSON(`/get_quiz_count/${currentUserId}`, function(response) {
             $('.count').text(response.quiz_count);  // Updates all elements with class="count"
-            admin_quiz_count = response.quiz_count;
+            this_quiz_count = response.quiz_count;
+            if (isAdmin == false) {
+                var participation = ((this_quiz_count / quiz_count) * 100).toFixed(2);
+                document.getElementById('participation').textContent = participation;
+            }
+
         }).fail(function() {
             console.error("Error fetching quiz count");
             $('.count').text("Error");  // Updates all elements with class="count" on failure
         });
 
         // Get total questions contributed by a lecturer
-        var isAdmin = "{{ is_admin }}" === "True"
         if (isAdmin) {
             $.getJSON(`/get_ques_contributed/${currentUserId}`, function(response) {
                 if (response.total_contributed !== undefined) {
@@ -327,10 +392,10 @@
             data.forEach(function(item) {
                 // Fetch quiz count for each participant
                 $.getJSON(`/get_quiz_count/${item.participantID}`, function(quizData) {
-                    var participation = ((quizData.quiz_count / admin_quiz_count) * 100).toFixed(2);
-
                     if (isAdmin) {
                         // Admin view: Include Rank, Student ID, Total Points, and Participation
+                        var participation = ((quizData.quiz_count / quiz_count) * 100).toFixed(2);
+
                         var row = `<tr>
                             <td>${item.rank}</td>
                             <td>${item.participantID}</td>
@@ -340,9 +405,6 @@
                         $('#leaderboardTableBody').append(row); // Append to the admin's table
                     } else {
                         // Student view: Include Rank, Name, and Total Points
-                        document.getElementById('participation').textContent = participation;
-                        document.getElementById('totalscore').textContent = item.total_score;
-
                         var row = `<tr>
                             <td>${item.rank}</td>
                             <td>${item.fname} ${item.lname}</td>
@@ -357,6 +419,9 @@
         // Get the top scorer
         if (isAdmin) {
             fetchTopScorer();
+        }
+        else{
+            fetchScore()
         }
 
         function fetchTopScorer() {
@@ -379,6 +444,27 @@
                     document.getElementById('top_scorer').textContent = 'None';
                 });
             }
+        
+        function fetchScore() {
+            fetch(`/get_score/${currentUserId}`)
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok');
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    if(data.error) {
+                        document.getElementById('totalscore').textContent = 'No data available';
+                    } else {
+                        document.getElementById('totalscore').textContent = data.score;
+                    }
+                })
+                .catch(error => {
+                    console.error('There was a problem with the fetch operation:', error);
+                    document.getElementById('totalscore').textContent = 'None';
+                });
+            } 
     });
 </script>
 {% endblock%}

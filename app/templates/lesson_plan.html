@@ -253,18 +253,6 @@ function addTextQuestion() {
     document.getElementById('text-form').appendChild(newTxtQuestionDiv);
 }
 
-function removeQuestion(questionId) {
-    var element = document.getElementById(questionId);
-    element.parentNode.removeChild(element);
-}
-
-
-function removeQuestion(questionId) {
-    var element = document.getElementById(questionId);
-    element.parentNode.removeChild(element);
-}
-
-
 function addImageQuestion() {
     var counter = document.getElementsByClassName('imgquestion-form').length;
     var newImgQuestionDiv = document.createElement('div');
@@ -304,8 +292,8 @@ function addImageQuestion() {
     document.getElementById('image-form').appendChild(newImgQuestionDiv);
 }
 
-function removeTextQuestion(questionId) {
-    var element = document.getElementById(questionId);
+function removeQuestion(id) {
+    var element = document.getElementById(id);
     element.parentNode.removeChild(element);
 }
 
@@ -384,6 +372,8 @@ $(document).ready(function() {
 document.getElementById('quiz-form').addEventListener('submit', function(event) {
     event.preventDefault(); // Prevent default form submission
     updateQuestionCounts();
+    var selectedQuestions = [];
+    
     const formData = new FormData(this);
 
     fetch('/add_lesson', {
@@ -394,6 +384,7 @@ document.getElementById('quiz-form').addEventListener('submit', function(event) 
     .then(data => {
         if (data.success) {
             console.log('Lesson Created:', data);
+            Swal.fire('Lesson Successfully Created!')
             window.location.href = data.redirect_url; // Redirect based on response
         } else {
             console.error('Failed to create lesson:', data.message);
