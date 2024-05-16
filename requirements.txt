@@ -23,7 +23,6 @@ zipp==3.14.0
 # Model Libraries
 opencv-python
 mediapipe
-# tensorflow
-# keras
-
+tensorflow
+keras
 reportlab
