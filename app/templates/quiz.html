@@ -227,7 +227,7 @@
             } else if (question.type === 'Image') {
                 contentHTML = `<div class="question">
                     <p class="question-text" style="color: black">Question ${index + 1}: ${question.text}</p>
-                    <img src="../static/images/${question.image_url}" alt="Quiz Image" style="max-width: 100%; height: auto;">
+                    <img src="../static/uploads/${question.image_url}" alt="Quiz Image" style="max-width: 100%; height: auto;">
                     <div class="answer-input">
                         <input type="text" placeholder="Type your answer" class="answer-bar" id="answer-${question.question_id}">
                     </div>

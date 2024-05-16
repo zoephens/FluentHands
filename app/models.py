@@ -43,9 +43,9 @@ class Participant(db.Model):
 
     def get_id(self):
         try:
-            return unicode(self.participantID)  # python 2 support
+            return unicode(self.email)  # python 2 support
         except NameError:
-            return str(self.participantID)  # python 3 support
+            return str(self.email)  # python 3 support
         
     def is_admin(self):
         return False
@@ -87,9 +87,9 @@ class Administrator(db.Model):
 
     def get_id(self):
         try:
-            return unicode(self.administratorID)  # python 2 support
+            return unicode(self.email)  # python 2 support
         except NameError:
-            return str(self.administratorID)  # python 3 support
+            return str(self.email)  # python 3 support
 
     def is_admin(self):
         return True

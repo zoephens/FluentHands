@@ -31,7 +31,7 @@ current_dir = os.path.dirname(__file__)
 model_path = os.path.join(current_dir, 'action_new.h5')
 label_path = os.path.join(current_dir, 'labels.json')
 
-# Load the model
+# Load the JSL model
 model = load_model(model_path)
 
 # static gesture model
@@ -41,10 +41,6 @@ model = load_model(model_path)
 with open(label_path, 'r') as file:
     # Actions that we try to detect
     actions = json.load(file)
-
-# List to store predictions
-all_predictions = []
-user_email = ''
 
 
 ###
@@ -123,6 +119,7 @@ def register():
 
                 return redirect(url_for('enrol'))
             elif account_type == 'admin':
+                session['user_email'] = email
                 user = db.session.query(Administrator).filter_by(email=email).first()
                 login_user(user)
                 return redirect(url_for('dashboard'))
@@ -169,12 +166,15 @@ def login():
         password = form.password.data
         session['user_email'] = email
 
+        print(email)
         # Query the database for the user
         user = db.session.query(Participant).filter_by(email=email).first()
 
+        print(user)
         if user is None:
             user = db.session.query(Administrator).filter_by(email=email).first()
-
+            print(user)
+            
         if user is not None:
             print(email, password)
             if check_password_hash(user.password, password):
@@ -196,7 +196,6 @@ def login():
             flash('User not found', 'danger')
 
     return render_template("login.html", form=form)
-
 
 @app.route('/delete_account', methods=['POST'])
 def delete_account():
@@ -261,13 +260,14 @@ def leaderboard(room_code):
         })
 
     return jsonify(formatted_leaderboard_data)
+# -----------------------------------------------------------------------------------
 
-# --------- Progress Report ---------
 
+# ----------------------------- Progress Report -------------------------------------
 # Function to generate the progress report PDF
 def generate_progress_report(access_code, students_grades):
     # Create a new PDF file
-    pdf_path = os.path.join(app.root_path, 'progress_report.pdf')  
+    pdf_path = os.path.join(app.static_folder, 'progress_report.pdf')  
 
     # Create canvas
     c = canvas.Canvas(pdf_path, pagesize=letter)
@@ -334,9 +334,6 @@ def get_progress_report(access_code):
         return send_file(pdf_path, as_attachment=True)
     except FileNotFoundError:
         return "PDF file not found", 404
-
-
-
 
 @app.route('/get_students/<room_code>', methods=['GET'])
 def get_students(room_code):
@@ -425,6 +422,131 @@ def top_scorer(room_code):
                 'score': top_score.max_score
             })
     return jsonify({'error': 'No scores found'}), 404
+
+@app.route('/get_score/<userID>', methods=['GET'])
+def get_score(userID):
+    # First, determine if the ID belongs to a Participant or an Administrator
+    participant = db.session.query(Enrol).filter_by(participantID=userID).first()
+    if participant:
+        # If the ID belongs to a Participant, get score from enrol
+        score = participant.score
+        return jsonify({'participantID': userID, 'score': score})
+    else:
+        # If neither, return an error message
+        return jsonify({'error': 'No valid Participant found with the provided ID'}), 404
+    
+# Get quizzes for a specific administrator
+# Get quizzes by topic
+# Get quizzes by difficulty
+# Get quizzes by quiz_id
+
+# utility function
+def fetch_prepared_quizzes(admin_id=None, topic=None, difficulty=None, quiz_id=None):
+    # Start with a base query
+    query = Quiz.query.options(
+        subqueryload(Quiz.camera_questions),
+        subqueryload(Quiz.image_questions)
+    )
+
+    # Conditions for filtering
+    conditions = []
+    if admin_id:
+        conditions.append(Quiz.adminID == admin_id)
+    if topic:
+        conditions.append(Quiz.topic.ilike(f'%{topic}%'))
+    if difficulty:
+        conditions.append(or_(
+            CamQuestion.level.ilike(f'%{difficulty}%'),
+            ImageQuestion.level.ilike(f'%{difficulty}%')
+        ))
+    if quiz_id:
+        conditions.append(Quiz.quizID == quiz_id)
+    
+    # Apply filter conditions if any
+    if conditions:
+        query = query.filter(*conditions)
+
+    # Fetch all quizzes matching filters
+    quizzes = query.all()
+
+    # Prepare data for each quiz
+    quizzes_data = [{
+        'quiz_id': quiz.quizID,
+        'topic': quiz.topic,
+        'total_marks': sum(q.marks for q in quiz.camera_questions + quiz.image_questions),
+        'level': quiz.level,
+        'due_date': quiz.due_date.isoformat() if quiz.due_date else None,
+        'created_date': quiz.date.isoformat(),
+        'camera_questions': [{
+            'question_id': q.camQuestionID,
+            'text': q.question,
+            'marks': q.marks,
+            'answer': q.label,
+            'type': 'Camera'
+        } for q in quiz.camera_questions],
+        'image_questions': [{
+            'question_id': q.imgQuestionID,
+            'text': q.question,
+            'marks': q.marks,
+            'image_url': q.filename,
+            'answer': q.label,
+            'type': 'Image'
+        } for q in quiz.image_questions]
+    } for quiz in quizzes]
+
+    return quizzes_data
+
+@app.route('/playground')
+def playground():
+    if isinstance(current_user, Participant): 
+        enrol = Enrol.query.filter_by(participantID=current_user.participantID).first()
+        participant = Participant.query.filter_by(participantID=current_user.participantID).first()
+
+        room_code = enrol.access_code
+        is_admin = False
+        id_num = current_user.participantID
+        return render_template('playground.html', fname=participant.fname, room_code=room_code, is_admin=is_admin, id_num=id_num)
+    else:
+        # If the current user is an admin
+        admin = Administrator.query.filter_by(administratorID=current_user.administratorID).first()
+        room_code = admin.access_code
+        is_admin = True
+        id_num = current_user.administratorID
+
+        return render_template('playground.html', fname=admin.fname, room_code=room_code, is_admin=is_admin, id_num=id_num)
+
+@app.route('/uploads/<filename>')
+def uploaded_file(filename):
+    return send_from_directory(app.config['UPLOAD_FOLDER'], filename)
+
+@app.route('/get_quiz/<int:quiz_id>', methods=['GET'])
+@login_required
+def get_quiz(quiz_id):
+    # Fetch the quiz with preloaded questions from both question banks
+    quizzes = fetch_prepared_quizzes(quiz_id=quiz_id)
+
+    if not quizzes:
+        abort(404, description="Quiz not found")  # Send a 404 if not found
+
+    participant = Participant.query.filter_by(participantID=current_user.participantID).first()
+    enrol = Enrol.query.filter_by(participantID=current_user.participantID).first()
+    room_code = enrol.access_code if enrol else None
+    level = participant.level
+    id_num = current_user.participantID
+    is_admin = False
+
+    return render_template('quiz.html', quizzes=quizzes, fname=participant.fname, room_code=room_code, is_admin=is_admin, level=level, id_num=id_num)
+
+# Dummy random question list generator
+def select_random_questions(topic, num_questions):
+    # This function will fetch half from each type of question bank
+    num_each_type = num_questions // 2
+
+    cam_questions = CamQuestion.query.filter_by(topic=topic).order_by(func.random()).limit(num_each_type).all()
+    img_questions = ImageQuestion.query.filter_by(topic=topic).order_by(func.random()).limit(num_each_type).all()
+
+    question_ids = [q.id for q in cam_questions + img_questions]
+    return question_ids
 # -----------------------------------------------------------------------------------
 
 
@@ -433,14 +555,12 @@ def top_scorer(room_code):
 def add_lesson():
     lesson_form = LessonPlan()
 
-    
     if request.method == 'GET':
         if isinstance(current_user, Administrator):
             admin = Administrator.query.filter_by(administratorID=current_user.administratorID).first()
             return render_template('lesson_plan.html', fname=admin.fname, room_code=admin.access_code, is_admin=True, id_num=admin.administratorID, lesson_form=lesson_form)
     
     elif request.method == 'POST':
-        # print(request.form)
 
         if lesson_form.validate_on_submit():
             adminID = current_user.administratorID
@@ -527,6 +647,7 @@ def add_lesson():
 
                     if file_field:
                         filename = secure_filename(file_field.filename)
+                        print(os.path.join(app.config['UPLOAD_FOLDER'], filename))
                         file_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
                         file_field.save(file_path)
 
@@ -568,6 +689,7 @@ def add_lesson():
                 'redirect_url': url_for('add_lesson')
             })
         else:
+            flash(lesson_form.errors, 'danger')
             print("Form Errors:", lesson_form.errors)
     else:
         return jsonify({
@@ -584,7 +706,7 @@ def keypoints():
     try:
         keypoints_data = request.json
         sequence = keypoints_data
-        most_common_prediction = ''
+        # most_common_prediction = ''
 
         if len(sequence) == 30:
             prediction = model.predict(np.expand_dims(sequence, axis=0))[0]
@@ -592,9 +714,6 @@ def keypoints():
 
             # all_predictions.append(action)
             # print(action)
-        
-            # predictions = np.argmax(predictions, axis=1)  # if your model outputs one-hot encoded predictions
-            # y_true = np.argmax(y_test, axis=1)            # if your labels are also one-hot encoded
 
             # # Calculate the accuracy
             # accuracy = accuracy_score(y_true, predictions)
@@ -744,152 +863,27 @@ def submit_answers():
     db.session.commit()
 
     return jsonify({'message': 'Answers received and processed successfully!', 'score': score})
-
-
 # -----------------------------------------------------------------------------------
 
 
-# --------------------------------------------------Functionality to implement
-
+# -------------------------------------------------- Other Possible Functionality
 @app.route('/get_student/<participantID>', methods=['GET'])
 def get_student(participantID):
     pass
 
-@app.route('/get_quizzes', methods=['GET'])
-def get_quizzes():
-    pass
-
-
-# Get quizzes for a specific administrator with ID 1
-# quizzes_for_admin1 = fetch_prepared_quizzes(admin_id=1)
-
-# Get quizzes that include 'Algebra' in their topic
-# algebra_quizzes = fetch_prepared_quizzes(topic='Algebra')
-
-# Get quizzes that are of 'Intermediate' difficulty
-# intermediate_quizzes = fetch_prepared_quizzes(difficulty='Intermediate')
-
-# utility function
-def fetch_prepared_quizzes(admin_id=None, topic=None, difficulty=None, quiz_id=None):
-    # Start with a base query
-    query = Quiz.query.options(
-        subqueryload(Quiz.camera_questions),
-        subqueryload(Quiz.image_questions)
-    )
-
-    # Construct a list of conditions for filtering
-    conditions = []
-    if admin_id:
-        conditions.append(Quiz.adminID == admin_id)
-    if topic:
-        conditions.append(Quiz.topic.ilike(f'%{topic}%'))
-    if difficulty:
-        conditions.append(or_(
-            CamQuestion.level.ilike(f'%{difficulty}%'),
-            ImageQuestion.level.ilike(f'%{difficulty}%')
-        ))
-    if quiz_id:
-        conditions.append(Quiz.quizID == quiz_id)
-    
-    # Apply the filter conditions if any
-    if conditions:
-        query = query.filter(*conditions)
-
-    # Fetch all quizzes matching the filters
-    quizzes = query.all()
-
-    # Prepare data for each quiz
-    quizzes_data = [{
-        'quiz_id': quiz.quizID,
-        'topic': quiz.topic,
-        'total_marks': sum(q.marks for q in quiz.camera_questions + quiz.image_questions),
-        'level': quiz.level,
-        'due_date': quiz.due_date.isoformat() if quiz.due_date else None,
-        'created_date': quiz.date.isoformat(),
-        'camera_questions': [{
-            'question_id': q.camQuestionID,
-            'text': q.question,
-            'marks': q.marks,
-            'answer': q.label,
-            'type': 'Camera'
-        } for q in quiz.camera_questions],
-        'image_questions': [{
-            'question_id': q.imgQuestionID,
-            'text': q.question,
-            'marks': q.marks,
-            'image_url': q.filename,
-            'answer': q.label,
-            'type': 'Image'
-        } for q in quiz.image_questions]
-    } for quiz in quizzes]
-
-    return quizzes_data
-
-@app.route('/playground')
-def playground():
-    if isinstance(current_user, Participant): 
-        enrol = Enrol.query.filter_by(participantID=current_user.participantID).first()
-        participant = Participant.query.filter_by(participantID=current_user.participantID).first()
-
-        room_code = enrol.access_code
-        is_admin = False
-        id_num = current_user.participantID
-        return render_template('playground.html', fname=participant.fname, room_code=room_code, is_admin=is_admin, id_num=id_num)
-    else:
-        # If the current user is an admin
-        admin = Administrator.query.filter_by(administratorID=current_user.administratorID).first()
-        room_code = admin.access_code
-        is_admin = True
-        id_num = current_user.administratorID
-
-        return render_template('playground.html', fname=admin.fname, room_code=room_code, is_admin=is_admin, id_num=id_num)
-
-
-@app.route('/uploads/<filename>')
-def uploaded_file(filename):
-    return send_from_directory(app.config['UPLOAD_FOLDER'], filename)
-
-@app.route('/get_quiz/<int:quiz_id>', methods=['GET'])
-@login_required
-def get_quiz(quiz_id):
-    # Fetch the quiz with preloaded questions from both question banks
-    quizzes = fetch_prepared_quizzes(quiz_id=quiz_id)
-
-    if not quizzes:
-        abort(404, description="Quiz not found")  # Send a 404 if not found
-
-    participant = Participant.query.filter_by(participantID=current_user.participantID).first()
-    enrol = Enrol.query.filter_by(participantID=current_user.participantID).first()
-    room_code = enrol.access_code if enrol else None
-    level = participant.level
-    id_num = current_user.participantID
-    is_admin = False
-
-    return render_template('quiz.html', quizzes=quizzes, fname=participant.fname, room_code=room_code, is_admin=is_admin, level=level, id_num=id_num)
-
-# Dummy random question list generator
-def select_random_questions(topic, num_questions):
-    # This function will fetch half from each type of question bank
-    num_each_type = num_questions // 2
-
-    cam_questions = CamQuestion.query.filter_by(topic=topic).order_by(func.random()).limit(num_each_type).all()
-    img_questions = ImageQuestion.query.filter_by(topic=topic).order_by(func.random()).limit(num_each_type).all()
-
-    question_ids = [q.id for q in cam_questions + img_questions]
-    return question_ids
 
 # -------------------------- General Flask App Functions ----------------------------
 # user_loader callback. This callback is used to reload the user object from
 # the user ID stored in the session
 @login_manager.user_loader
-def load_user(id):
+def load_user(email):
     # Attempt to load a student
-    student = db.session.query(Participant).filter_by(participantID=id).first()
+    student = db.session.query(Participant).filter_by(email=email).first()
     if student:
         return student
     
     # If no student found, attempt to load a teacher
-    teacher = db.session.query(Administrator).filter_by(administratorID=id).first()
+    teacher = db.session.query(Administrator).filter_by(email=email).first()
     if teacher:
         return teacher
 
@@ -919,3 +913,4 @@ def add_header(response):
 def page_not_found(error):
     """Custom 404 page."""
     return render_template('404.html'), 404
+# -----------------------------------------------------------------------------------

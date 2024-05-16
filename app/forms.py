@@ -31,7 +31,7 @@ class ImageQuestionForm(FlaskForm):
     answer = StringField('Answer', validators=[InputRequired()])
     photo = FileField('Upload Photo', validators=[
         FileRequired(message='Please upload a photo'),
-        FileAllowed(['jpg', 'png'], message='Only JPEG and PNG images are allowed.')
+        FileAllowed(['jpg', 'png', 'jpeg'], message='Only JPEG and PNG images are allowed.')
     ])
 
 class LessonPlan(FlaskForm):
