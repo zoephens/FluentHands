@@ -272,7 +272,7 @@ def generate_progress_report(access_code, students_grades):
     # Create canvas
     c = canvas.Canvas(pdf_path, pagesize=letter)
 
-    # Define background image path
+    # Background image path
     background_path = os.path.join(app.root_path, 'pr-1.png')
 
 
@@ -287,12 +287,12 @@ def generate_progress_report(access_code, students_grades):
         table_data.append([participant_id, first_name, last_name, score])
 
     # Define column widths
-    col_widths = [80, 100, 100, 50]  # Adjust these values as needed
+    col_widths = [80, 100, 100, 50] 
 
     # Create table
     table = Table(table_data, colWidths=col_widths)
 
-    # Add style to table
+    # Table Style
     style = TableStyle([
         ('BACKGROUND', (0, 0), (-1, 0), colors.HexColor('#657CD5')),  
         ('TEXTCOLOR', (0, 0), (-1, 0), colors.white),  
@@ -305,6 +305,7 @@ def generate_progress_report(access_code, students_grades):
 
     table.setStyle(style)
 
+    # Horizontal midpoint of canvas
     page_width = letter[0]  
     table_width = 400  
     midpoint = (page_width - table_width) / 2  
@@ -323,13 +324,21 @@ def generate_progress_report(access_code, students_grades):
 # Route to get the progress report
 @app.route('/get_progress_report/<access_code>', methods=['GET'])
 def get_progress_report(access_code):
-    # Retrieve information from the database (you'll need to adjust this query based on your database structure)
-    students_grades = db.session.query(Enrol.participantID, Enrol.score, Participant.fname, Participant.lname).join(Participant).filter(Enrol.access_code == access_code).all()
+    # Join Enrol and Participants tables
+    students_grades = db.session.query(
+            Enrol.participantID, 
+            Enrol.score, 
+            Participant.fname,
+            Participant.lname
+        ).join(
+            Participant
+        ).filter(
+            Enrol.access_code == access_code).all()
 
     # Generate the progress report PDF
     pdf_path = generate_progress_report(access_code, students_grades)
 
-    # Return the PDF file
+    # Return the PDF
     try:
         return send_file(pdf_path, as_attachment=True)
     except FileNotFoundError:
