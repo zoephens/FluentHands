@@ -1,9 +1,9 @@
 import os, json
 from app import app, db, login_manager
 from flask import jsonify, Response, render_template, request, redirect, url_for, flash, session, abort, send_from_directory, send_file
-from flask_login import login_user, logout_user, current_user, login_required
-from werkzeug.security import check_password_hash
-from werkzeug.utils import secure_filename
+from flask_login import login_user, logout_user, current_user, login_required 
+from werkzeug.security import check_password_hash 
+from werkzeug.utils import secure_filename 
 
 from reportlab.pdfgen import canvas
 from reportlab.lib.pagesizes import letter
@@ -14,9 +14,8 @@ from reportlab.platypus import SimpleDocTemplate, Table, TableStyle, Image
 from PIL import Image
 from io import BytesIO
 
-from sqlalchemy.orm import joinedload
-from sqlalchemy.orm import subqueryload
-from sqlalchemy import func, or_
+from sqlalchemy.orm import joinedload, subqueryload 
+from sqlalchemy import func, or_ 
 from sqlalchemy.sql import insert
 
 from app.models import quiz_camera_question, quiz_image_question, Participant, Administrator, CamQuestion, ImageQuestion, Quiz, Leaderboard, Administered, Enrol
@@ -51,6 +50,7 @@ with open(label_path, 'r') as file:
 def dashboard():
     """Render website's dashboard page."""
     first_name = current_user.fname
+    # print(current_user)
 
     if isinstance(current_user, Administrator):
         # If the current user is an admin
@@ -72,6 +72,7 @@ def dashboard():
 
         admin = Administrator.query.filter_by(access_code=room_code).first()
         quizzes = fetch_prepared_quizzes(admin_id=admin.administratorID, difficulty=level)
+        # print(quizzes)
         return render_template('dashboard.html', quizzes=quizzes, fname=first_name, room_code=room_code, is_admin=is_admin, level=level, id_num=id_num)
 
 # --------------------- Validation and Authentication Endpoints ---------------------
@@ -166,17 +167,17 @@ def login():
         password = form.password.data
         session['user_email'] = email
 
-        print(email)
+        # print(email)
         # Query the database for the user
         user = db.session.query(Participant).filter_by(email=email).first()
 
-        print(user)
+        # print(user)
         if user is None:
             user = db.session.query(Administrator).filter_by(email=email).first()
-            print(user)
+            # print(user)
             
         if user is not None:
-            print(email, password)
+            # print(email, password)
             if check_password_hash(user.password, password):
 
                 # Check if Participant is enrolled
@@ -313,7 +314,7 @@ def generate_progress_report(access_code, students_grades):
 
     # Position table on the canvas
     table.wrapOn(c, 400, 200)
-    table.drawOn(c, midpoint + 25, 625) 
+    table.drawOn(c, midpoint + 25, 600) 
 
     # Save canvas
     c.save()
@@ -452,26 +453,23 @@ def get_score(userID):
 # utility function
 def fetch_prepared_quizzes(admin_id=None, topic=None, difficulty=None, quiz_id=None):
     # Start with a base query
-    query = Quiz.query.options(
-        subqueryload(Quiz.camera_questions),
-        subqueryload(Quiz.image_questions)
-    )
+    query = Quiz.query
 
-    # Conditions for filtering
+    # Optionally load related data
+    query = query.options(joinedload(Quiz.camera_questions), joinedload(Quiz.image_questions))
+
+    # # Conditions for filtering
     conditions = []
     if admin_id:
         conditions.append(Quiz.adminID == admin_id)
     if topic:
         conditions.append(Quiz.topic.ilike(f'%{topic}%'))
-    if difficulty:
-        conditions.append(or_(
-            CamQuestion.level.ilike(f'%{difficulty}%'),
-            ImageQuestion.level.ilike(f'%{difficulty}%')
-        ))
     if quiz_id:
         conditions.append(Quiz.quizID == quiz_id)
-    
-    # Apply filter conditions if any
+    if difficulty:
+        conditions.append(Quiz.level == difficulty)
+
+    # # Apply basic filter conditions
     if conditions:
         query = query.filter(*conditions)
 
@@ -570,6 +568,7 @@ def add_lesson():
             return render_template('lesson_plan.html', fname=admin.fname, room_code=admin.access_code, is_admin=True, id_num=admin.administratorID, lesson_form=lesson_form)
     
     elif request.method == 'POST':
+        # print(request.form)
 
         if lesson_form.validate_on_submit():
             adminID = current_user.administratorID
@@ -591,7 +590,7 @@ def add_lesson():
             if lesson_form.choose_from_bank.data == 'y':
                 # Retrieve question IDs from the form
                 question_ids = request.form.get('question')
-                print(question_ids)
+                # print(question_ids)
                 for question_id in question_ids:
                     question = CamQuestion.query.get(question_id) or ImageQuestion.query.get(question_id)
                     if question:
@@ -656,7 +655,6 @@ def add_lesson():
 
                     if file_field:
                         filename = secure_filename(file_field.filename)
-                        print(os.path.join(app.config['UPLOAD_FOLDER'], filename))
                         file_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
                         file_field.save(file_path)
 
@@ -698,7 +696,6 @@ def add_lesson():
                 'redirect_url': url_for('add_lesson')
             })
         else:
-            flash(lesson_form.errors, 'danger')
             print("Form Errors:", lesson_form.errors)
     else:
         return jsonify({
@@ -779,6 +776,7 @@ def takequiz():
 
     return render_template('quiz.html', fname=participant.fname, room_code=room_code, is_admin=is_admin, id_num=id_num, level=participant.level)
 
+# Allows admins to update participants level
 @app.route('/update_user_level', methods=['POST'])
 def update_user_level():
     data = request.json
@@ -816,7 +814,7 @@ def calculate_score(user_answers, correct_answers):
                 marks_awarded = correct_entry['marks'] - user_answer['tries']
                 total_score += max(marks_awarded, 0)  # Ensure the score doesn't go negative
 
-    print(total_score)
+    # print(total_score)
     return total_score
 
 # Make this something an administrator can adjust
